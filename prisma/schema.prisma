@@ -1,0 +1,217 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum FoodType {
+  VEG
+  NON_VEG
+}
+
+enum OrderType {
+  TAKEAWAY
+  DELIVERY
+}
+
+enum OrderStatus {
+  PENDING
+  ACCEPTED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+model Category {
+  id           String  @id @default(cuid())
+  name         String  @unique
+  image        String?
+  displayOrder Int     @default(0)
+  isActive     Boolean @default(true)
+
+  menuItems MenuItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model MenuItem {
+  id String @id @default(cuid())
+
+  categoryId String
+  category   Category @relation(fields: [categoryId], references: [id])
+
+  name        String
+  description String?
+  price       Decimal @db.Decimal(10, 2)
+
+  foodType FoodType
+
+  image String?
+
+  isAvailable   Boolean @default(true)
+  isBestSeller  Boolean @default(false)
+  isRecommended Boolean @default(false)
+
+  displayOrder Int @default(0)
+
+  orderItems OrderItem[]
+
+  suggestionsFor MenuItemSuggestion[] @relation("MenuItemSuggestions")
+  suggestedBy    MenuItemSuggestion[] @relation("SuggestedForMenuItem")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  variants MenuItemVariant[]
+
+  @@index([categoryId])
+  @@index([foodType])
+  @@index([isAvailable])
+}
+
+model MenuItemVariant {
+  id String @id @default(cuid())
+
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  name  String
+  price Decimal @db.Decimal(10, 2)
+
+  isAvailable  Boolean @default(true)
+  displayOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([menuItemId])
+}
+
+model MenuItemSuggestion {
+  id String @id @default(cuid())
+
+  menuItemId      String
+  suggestedItemId String
+
+  priority Int     @default(0)
+  isActive Boolean @default(true)
+
+  menuItem MenuItem @relation("MenuItemSuggestions", fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  suggestedItem MenuItem @relation("SuggestedForMenuItem", fields: [suggestedItemId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+
+  @@unique([menuItemId, suggestedItemId])
+  @@index([menuItemId])
+}
+
+model Order {
+  id String @id @default(cuid())
+
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  customerAddress String?
+
+  landmark String?
+
+  pincode String?
+
+  orderType OrderType
+  status    OrderStatus @default(PENDING)
+
+  subtotal Decimal @db.Decimal(10, 2)
+  tax      Decimal @db.Decimal(10, 2)
+  total    Decimal @db.Decimal(10, 2)
+
+  paymentId     String?
+  paymentStatus String?
+
+  items OrderItem[]
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id String @id @default(cuid())
+
+  orderId String
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  menuItemId String
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  quantity Int
+
+  price Decimal @db.Decimal(10, 2)
+}
+
+model Admin {
+  id String @id @default(cuid())
+
+  username String @unique
+  password String
+
+  createdAt DateTime @default(now())
+
+  name String
+
+  phone String?
+}
+
+model RestaurantSetting {
+  id String @id @default(cuid())
+
+  restaurantName String
+
+  phone String
+
+  email String?
+
+  address String
+
+  deliveryRadius Int @default(3)
+
+  isOpen Boolean @default(true)
+
+  openingTime String
+
+  closingTime String
+
+  logo String?
+
+  banner String?
+
+  upiId          String?
+  instagramUrl   String?
+  facebookUrl    String?
+  googleMapsUrl  String?
+  whatsAppNumber String?
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+}
+
+model Banner {
+  id String @id @default(cuid())
+
+  title String
+
+  image String
+
+  active Boolean @default(true)
+
+  createdAt DateTime @default(now())
+}

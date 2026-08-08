@@ -1,0 +1,315 @@
+@import "tailwindcss";
+
+/* =========================================================
+   FLUTES RESTO & BAR
+   GLOBAL THEME
+========================================================= */
+
+:root {
+  /* Brand */
+  --primary: #2f4f46;
+  --primary-light: #40665b;
+  --accent: #a74f26;
+  --gold: #d6b36a;
+
+  /* Background */
+  --background: #f8f4ea;
+  --surface: #fffdf8;
+  --card: #ffffff;
+
+  /* Text */
+  --foreground: #1d1d1d;
+  --text-secondary: #6b7280;
+
+  /* Border */
+  --border: #e7ddca;
+
+  /* Status */
+  --success: #16a34a;
+  --danger: #dc2626;
+  --warning: #f59e0b;
+
+  /* Radius */
+  --radius: 18px;
+}
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+*::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+html {
+  width: 100%;
+  min-height: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  padding: 0;
+
+  overflow-x: hidden;
+
+  background: var(--background);
+  color: var(--foreground);
+
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  -webkit-font-smoothing: antialiased;
+}
+
+/* =========================================================
+   ELEMENTS
+========================================================= */
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+input,
+textarea,
+select {
+  outline: none;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+}
+
+img {
+  user-select: none;
+  max-width: 100%;
+}
+
+/* =========================================================
+   GENERAL UTILITIES
+========================================================= */
+
+.primary-btn {
+  background: var(--accent);
+  color: white;
+  padding: 14px 20px;
+  border-radius: 14px;
+  font-weight: 600;
+}
+
+.primary-btn:hover {
+  transform: translateY(-2px);
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.price {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #eef6f2;
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   CUSTOMER / MOBILE APP CONTAINER
+   IMPORTANT:
+   This is NOT applied to Admin.
+========================================================= */
+
+.container {
+  width: 100%;
+  max-width: 430px;
+  min-height: 100vh;
+  margin: 0 auto;
+
+  background: #f8f6f0;
+}
+
+.section {
+  padding: 18px;
+}
+
+.shadow-card {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* =========================================================
+   SAFE AREA
+========================================================= */
+
+.safe-bottom {
+  padding-bottom: calc(env(safe-area-inset-bottom) + 90px);
+}
+
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+/* =========================================================
+   ANIMATION
+========================================================= */
+
+.fade-up {
+  animation: fadeUp 0.45s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =========================================================
+   ADMIN DASHBOARD
+========================================================= */
+
+/*
+  IMPORTANT:
+  Do NOT put max-width on body.
+  Admin must use the complete available viewport.
+*/
+
+.admin-layout {
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+
+  max-width: none !important;
+  margin: 0 !important;
+
+  overflow-x: hidden;
+}
+
+/* Admin main content */
+
+.admin-layout .admin-main {
+  width: 100%;
+  min-width: 0;
+
+  max-width: none !important;
+  margin: 0 !important;
+}
+
+/* If an old .container is accidentally used
+   somewhere inside Admin, remove its mobile limit. */
+
+.admin-layout .container,
+.admin-layout .page-container {
+  width: 100%;
+  max-width: none !important;
+  min-width: 0;
+}
+
+/* Prevent images/content from creating horizontal scroll */
+
+.admin-layout img {
+  max-width: 100%;
+}
+
+/* =========================================================
+   ADMIN DESKTOP
+========================================================= */
+
+@media (min-width: 1024px) {
+  .admin-layout .admin-main {
+    padding-left: 32px;
+    padding-right: 32px;
+  }
+}
+
+/* =========================================================
+   ADMIN LARGE DESKTOP
+========================================================= */
+
+@media (min-width: 1440px) {
+  .admin-layout .admin-main {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+
+/* =========================================================
+   ADMIN TABLET
+========================================================= */
+
+@media (max-width: 1023px) {
+  .admin-layout .admin-main {
+    padding: 24px;
+  }
+}
+
+/* =========================================================
+   ADMIN MOBILE
+========================================================= */
+
+@media (max-width: 639px) {
+  .admin-layout .admin-main {
+    padding: 16px;
+  }
+}
+
+/* =========================================================
+   ADMIN SIDEBAR RESPONSIVENESS
+========================================================= */
+
+@media (max-width: 1023px) {
+  .admin-layout {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   MOBILE SAFE AREA
+========================================================= */
+
+@supports (padding: env(safe-area-inset-bottom)) {
+  .admin-layout {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
