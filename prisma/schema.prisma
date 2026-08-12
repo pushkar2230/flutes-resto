@@ -47,7 +47,7 @@ model MenuItem {
 
   name        String
   description String?
-  price       Decimal @db.Decimal(10, 2)
+  price       Decimal? @db.Decimal(10, 2)
 
   foodType FoodType
 
@@ -80,8 +80,9 @@ model MenuItemVariant {
   menuItemId String
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 
-  name  String
-  price Decimal @db.Decimal(10, 2)
+  name     String
+  price    Decimal   @db.Decimal(10, 2)
+  foodType FoodType?
 
   isAvailable  Boolean @default(true)
   displayOrder Int     @default(0)
@@ -90,6 +91,7 @@ model MenuItemVariant {
   updatedAt DateTime @updatedAt
 
   @@index([menuItemId])
+  @@index([foodType])
 }
 
 model MenuItemSuggestion {

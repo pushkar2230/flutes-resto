@@ -9,8 +9,8 @@ import BottomNavigation from "@/components/layout/BottomNavigation";
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen bg-[#F7F8F6] text-[#171A19]">
-      <div className="mx-auto min-h-screen max-w-[480px] overflow-hidden bg-[#F7F8F6]">
+    <main className="min-h-screen w-full bg-[#F7F8F6] text-[#171A19]">
+      <div className="mx-auto min-h-screen w-full overflow-hidden bg-[#F7F8F6] md:max-w-[480px]">
         <Header />
 
         <div className="relative z-20 -mt-1">
@@ -28,6 +28,7 @@ export default function HomePage() {
         <div className="h-32" />
 
         <FloatingCart />
+
         <BottomNavigation />
       </div>
     </main>

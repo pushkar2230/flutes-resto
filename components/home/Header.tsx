@@ -9,11 +9,11 @@ export default function Header() {
     <header className="relative h-[355px] overflow-hidden">
       {/* Restaurant hero background */}
       <Image
-        src="/banners/hero.jpg"
+        src="/banners/hero.png"
         alt="Flutes Resto & Bar"
         fill
         priority
-        className="object-cover"
+        className="object-cover blur-[2px]"
       />
 
       {/* Dark premium overlay */}
@@ -41,9 +41,9 @@ export default function Header() {
           src="/logo/flutes-logo.png"
           alt="Flutes Resto & Bar Logo"
           width={190}
-          height={150}
+          height={135}
           priority
-          className="h-[135px] w-[190px] object-contain brightness-0 invert drop-shadow-2xl"
+          className="h-[185px] w-auto object-contain mix-blend-screen drop-shadow-2xl invert"
         />
 
         <p className="-mt-2 text-[15px] font-medium tracking-wide text-white/90">

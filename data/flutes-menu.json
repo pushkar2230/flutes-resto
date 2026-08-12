@@ -1,0 +1,2007 @@
+{
+  "source": "Final Menu Card flutes.pdf",
+  "generatedAt": "2026-08-12T11:59:46.803Z",
+  "categories": [
+    {
+      "name": "Still Spirited Alcohol Free",
+      "displayOrder": 1,
+      "items": [
+        {
+          "name": "MASALACOKE",
+          "price": 209,
+          "foodType": "VEG"
+        },
+        {
+          "name": "SHIRLEYTEMPLE",
+          "price": 329,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CUCUMBERDELIGHT",
+          "price": 329,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VIRGINMOJITO",
+          "price": 349,
+          "foodType": "VEG"
+        },
+        {
+          "name": "GUAVASPICY",
+          "price": 349,
+          "foodType": "VEG"
+        },
+        {
+          "name": "GINGERBASILLEMONADE",
+          "price": 349,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PERU WATERMELONSODA",
+          "price": 349,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MANGOCHASKA",
+          "price": 349,
+          "foodType": "VEG"
+        },
+        {
+          "name": "EXOTICFRUITFIZZ",
+          "price": 349,
+          "foodType": "VEG"
+        },
+        {
+          "name": "ICETEA",
+          "price": 359,
+          "foodType": "VEG"
+        },
+        {
+          "name": "WATERMELONCOOLER",
+          "price": 369,
+          "foodType": "VEG"
+        },
+        {
+          "name": "FRUITPUNCH",
+          "price": 369,
+          "foodType": "VEG"
+        },
+        {
+          "name": "JAMUNSHIKANJI",
+          "price": 349,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Soup Veg/Non-Veg",
+      "displayOrder": 2,
+      "items": [
+        {
+          "name": "MANCHOW SOUP",
+          "price": 249,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 249,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 269,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "HOT&SOUR",
+          "price": 249,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 249,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 269,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "SWEETCORN",
+          "price": 249,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 249,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 269,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "CLEARSOUP",
+          "price": 249,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 249,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 269,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "CREAM OF",
+          "price": 269,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 269,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 289,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "SHORBA",
+          "price": 249,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 249,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 269,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "WANTON",
+          "price": 249,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 249,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 269,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "TOM YUM",
+          "price": 249,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 249,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 269,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "THAISPICE",
+          "price": 269,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 269,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 289,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "ROSTEDALMOND BROCCOLISOUP",
+          "price": 299,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "TOMKHA",
+          "price": 269,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 269,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 289,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "LUNGFUNG",
+          "price": 249,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 249,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 269,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 299,
+              "foodType": "NON_VEG"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Quick Bites",
+      "displayOrder": 3,
+      "items": [
+        {
+          "name": "FRENCH FRY(SALTED/PERI-PERI)",
+          "price": 239,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Salted",
+              "price": 239,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Peri-Peri",
+              "price": 259,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "CHICKENPOP-CORN",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHEESEGARLICBREAD",
+          "price": 369,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MASALAPAPAD(FRY/ROASTED)",
+          "price": 99,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Fry",
+              "price": 99,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Roasted",
+              "price": 79,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "CHEESECHEERYPINEAPPLE",
+          "price": 259,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MASALAPENUTS",
+          "price": 189,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CHANAGARLICFRY",
+          "price": 299,
+          "foodType": "VEG"
+        },
+        {
+          "name": "GREENPEASFRY",
+          "price": 199,
+          "foodType": "VEG"
+        },
+        {
+          "name": "KARARIROTI",
+          "price": 279,
+          "foodType": "VEG"
+        },
+        {
+          "name": "BOILEDEGG",
+          "price": 89,
+          "foodType": "VEG"
+        },
+        {
+          "name": "GARDENSALAD",
+          "price": 199,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CESARSALAD(VEG/CHICKEN)",
+          "price": 329,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 329,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 349,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "CHANAKOLIWADA",
+          "price": 299,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Asian Veg Appetizer",
+      "displayOrder": 4,
+      "items": [
+        {
+          "name": "CHEESECORNBALL",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "KUNGPOW PANEER/MUSHROOM",
+          "price": 419,
+          "foodType": "VEG"
+        },
+        {
+          "name": "SOYACHAAPLOLLIPOP",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "COTTAGECHEESECHILLI",
+          "price": 419,
+          "foodType": "VEG"
+        },
+        {
+          "name": "ORIENTALSTUFFCHEESE MUSHROOM",
+          "price": 419,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGBALLMANCHURIAN",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANEER65",
+          "price": 419,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANEERTHAIPAI",
+          "price": 419,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANEERTHAIBASIL",
+          "price": 419,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGSALT&PEPPER",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "BEERBATTERVEGETABLE",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "HONEYCHILLIPOTATO",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "TEMPURABABYCORN",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CRISPYCORN",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CRACKLINGSPINACH COTTAGE CHEESEROLL",
+          "price": 419,
+          "foodType": "VEG"
+        },
+        {
+          "name": "COTTAGECHEESECIGARROLL",
+          "price": 419,
+          "foodType": "VEG"
+        },
+        {
+          "name": "DRAGONROLLVEG",
+          "price": 419,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Asian Non-Veg Appetizer",
+      "displayOrder": 5,
+      "items": [
+        {
+          "name": "CHICKENCHILLI",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHICKEN65",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHICKENDRUM STICKS(HALF/FULL)",
+          "price": 299,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Half",
+              "price": 299,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Full",
+              "price": 469,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "BBQCHICKENWING",
+          "price": 469,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "GINGERGARLICCHICKENWINGS",
+          "price": 469,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "PESTOCHICKENBITES",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHICKENBALLMANCHURIAN",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "THAIBASILCHICKEN",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "KUNGPOW CHICKEN",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "SHANGAICHICKEN",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "SAMBHALCHICEKNBITES",
+          "price": 459,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "DRAGONCHICKEN",
+          "price": 469,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "PRAWNSGOLDENFRY",
+          "price": 629,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "BUTTERGARLICPRAWNS",
+          "price": 599,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "PRAWNSCHILLI",
+          "price": 609,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "SWEET&TANGYPRAWNS",
+          "price": 629,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHILLIGARLICPRAWNS",
+          "price": 629,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "FISH FINGER",
+          "price": 609,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "FISH&CHIPS",
+          "price": 599,
+          "foodType": "NON_VEG"
+        }
+      ]
+    },
+    {
+      "name": "Charcoal Grill Veg",
+      "displayOrder": 6,
+      "items": [
+        {
+          "name": "VINTAGEPANEER",
+          "price": 449,
+          "foodType": "VEG"
+        },
+        {
+          "name": "RESHMI/KALIMIRI/BANJARA/ PAHADI/ANGARA/MALAI",
+          "price": 449,
+          "foodType": "VEG"
+        },
+        {
+          "name": "TIKKA\"(BABYCORN/MUSHROOM/GOBI)",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MUSHROOM NAZAKATTIKKA",
+          "price": 449,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGCHILLIMILLIKEBAB",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "TANDOORIALOO",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PERIPERIPANEERTIKKA",
+          "price": 449,
+          "foodType": "VEG"
+        },
+        {
+          "name": "GALFIBHUTTEDEKEBAB",
+          "price": 449,
+          "foodType": "VEG"
+        },
+        {
+          "name": "HARABHARAKEBAB",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGSEEKH KEBAB",
+          "price": 429,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Charcoal Grill Non-Veg",
+      "displayOrder": 7,
+      "items": [
+        {
+          "name": "VINTAGECHICKEN",
+          "price": 489,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "RESHMI/KALIMIRI/BANJARA/ PAHADI/ANGARA/LASOONI",
+          "price": 489,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "TANDOORICHICKEN(HALF/FULL)",
+          "price": 389,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Half",
+              "price": 389,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Full",
+              "price": 749,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "BHATTIDAMURGWITH DESISWAD",
+          "price": 499,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGOLDMONKDUM KEBAB",
+          "price": 549,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "NOORANITANGDIKEBAB",
+          "price": 499,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGGULNARSEEKH KEBAB",
+          "price": 489,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "LIMBU ADRAKICHICKEN",
+          "price": 489,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGTHECHAKEBAB",
+          "price": 489,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "AFGHANICHICKEN",
+          "price": 489,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "PERI-PERIMURGTIKKA",
+          "price": 489,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGLAPETAKEBAB",
+          "price": 529,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "AMRITSARIFISH TIKKA",
+          "price": 609,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "TANDOORIPOMFRET",
+          "price": 699,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "PRAWNS(TANDOORI/KERALAM)",
+          "price": 649,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "TANDOORIBABYSURMAI",
+          "price": 699,
+          "foodType": "NON_VEG"
+        }
+      ]
+    },
+    {
+      "name": "Sea-Food Special",
+      "displayOrder": 8,
+      "items": [
+        {
+          "name": "SURMAI-RAWA/TAWA",
+          "price": 679,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "POMFRAT-RAWA/TAWA",
+          "price": 699,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "PRAWNS-RAWA/TAWA/ KOLIWADA/KURKURE",
+          "price": 649,
+          "foodType": "NON_VEG"
+        }
+      ]
+    },
+    {
+      "name": "Mini Pizza /Pasta",
+      "displayOrder": 9,
+      "items": [
+        {
+          "name": "MARGHERITAPIZZA",
+          "price": 249,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANEERTIKKAPIZZA",
+          "price": 299,
+          "foodType": "VEG"
+        },
+        {
+          "name": "EXOTICVEGETABLEPIZZA",
+          "price": 249,
+          "foodType": "VEG"
+        },
+        {
+          "name": "BBQCHICKENPIZZA",
+          "price": 309,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHICKENTIKKAPIZZA",
+          "price": 309,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHICKENKHEEMAPIZZA",
+          "price": 349,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "ALFRDOCHESSE(VEG-CHICKEN)",
+          "price": 529,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 529,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 559,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "ARABITASAUCE(VEG-CHICKEN)",
+          "price": 529,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 529,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 559,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "PINKLADY(VEG-CHICKEN)",
+          "price": 529,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 529,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 559,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "PESTO(VEG-CHICKEN)",
+          "price": 529,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 529,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 559,
+              "foodType": "NON_VEG"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Indian Veg Main Course",
+      "displayOrder": 10,
+      "items": [
+        {
+          "name": "VEGKOLHAPURI",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGKADAΙ",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGHAYDRABADI",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGAMRITSARY",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGDIWANIHANDI",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGJALFREZI",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGCHILIMILI",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGBHOONA",
+          "price": 399,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGTAWA",
+          "price": 389,
+          "foodType": "VEG"
+        },
+        {
+          "name": "DUM SUBZJALANDHARI",
+          "price": 399,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANEERKADAI",
+          "price": 459,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANNERTAKATAK",
+          "price": 459,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANEERTIKKAMASALA",
+          "price": 459,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANNERBUTTERMASALA",
+          "price": 459,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANNERBANJARAMASALA",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PALAKPANEER",
+          "price": 459,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANEERJODHPURIMIRCH MASALA",
+          "price": 459,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PANEERKAJU MASALA",
+          "price": 489,
+          "foodType": "VEG"
+        },
+        {
+          "name": "LASOONIPALAK",
+          "price": 399,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MUSHROOM DOPYAZA",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MUSHROOM MIRCH DHANIYAMASALA",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "DINGRIMUTTERHARAPYAZA",
+          "price": 389,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Indian Non-Veg Main Course",
+      "displayOrder": 11,
+      "items": [
+        {
+          "name": "CHICKENHANDI(HALF/FULL)",
+          "price": 539,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Half",
+              "price": 539,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Full",
+              "price": 799,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "BUTTERCHICKEN",
+          "price": 549,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGTAKA-TAK",
+          "price": 529,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGDOPYAZA",
+          "price": 529,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGPESHAWARI",
+          "price": 549,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGKADAI",
+          "price": 549,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGHYDRABADI",
+          "price": 529,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "RAJASTANIBANJARAMURG",
+          "price": 529,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGMUSSALLAM (HALF/FULL)",
+          "price": 629,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Half",
+              "price": 629,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Full",
+              "price": 1109,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "MURGKOLHAPURI",
+          "price": 499,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGAMRITSARI",
+          "price": 529,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGMOGHLAI",
+          "price": 529,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGRARA",
+          "price": 629,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGTAWA",
+          "price": 529,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MURGGHEEROST",
+          "price": 689,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "GHOSTHANDI(HALF/FULL)",
+          "price": 669,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Half",
+              "price": 669,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Full",
+              "price": 999,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "GHOSTTAWA",
+          "price": 659,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MUTTONROGANJOSH",
+          "price": 649,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MUTTONMASALA",
+          "price": 659,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MUTTONGHEEROST",
+          "price": 799,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MUTTONSUKHA",
+          "price": 659,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "RAJASTANIBANJARAGHOST",
+          "price": 659,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "FISH CURRY-(GOAN/MALWANI/MASALA)",
+          "price": 629,
+          "foodType": "NON_VEG"
+        }
+      ]
+    },
+    {
+      "name": "Assorted Breads",
+      "displayOrder": 12,
+      "items": [
+        {
+          "name": "TANDOORIROTI-PLAIN/BUTTER",
+          "price": 39,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Plain",
+              "price": 39,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Butter",
+              "price": 49,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "NAAN-PLAIN/BUTTER",
+          "price": 69,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Plain",
+              "price": 69,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Butter",
+              "price": 79,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "LACCHAPARATHA-PLAIN/BUTTER",
+          "price": 79,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Plain",
+              "price": 79,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Butter",
+              "price": 89,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "KULCHA-PLAIN/BUTTER",
+          "price": 59,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Plain",
+              "price": 59,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Butter",
+              "price": 69,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "ROOMALIROTI-PLAIN/BUTTER",
+          "price": 199,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Plain",
+              "price": 199,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Butter",
+              "price": 219,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "CHOICEOFNAAN-(GARLIC/CHEESEGARLIC)",
+          "price": 99,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Garlic",
+              "price": 99,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Cheese Garlic",
+              "price": 229,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "PARATHA-(ALOO/VEG/PANEER/KERALAM)",
+          "price": 199,
+          "foodType": "VEG"
+        },
+        {
+          "name": "STUFFEDKULCHA-(ONION/VEG/PANEER)",
+          "price": 199,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Asian Main Course",
+      "displayOrder": 13,
+      "items": [
+        {
+          "name": "THEBESTCOMBINATIONRICE",
+          "price": 409,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 409,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 469,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 509,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "WOKFRIEDRICE",
+          "price": 329,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 329,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 349,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 389,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "WOKBURNTGARLICFRIEDRICE",
+          "price": 349,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 349,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 389,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 399,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "WOKSICHUANFRIEDRICE",
+          "price": 409,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 409,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 469,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 509,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "KUNGPOW NOODLES",
+          "price": 329,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 329,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 349,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 389,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "SINGAPURINOODLES",
+          "price": 349,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 349,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 369,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 399,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "BURNTGALICNOODLES",
+          "price": 329,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 329,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 349,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 389,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "CHILLIGARLICNOODLES",
+          "price": 329,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 329,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 349,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 389,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "HAKKANOODLES",
+          "price": 309,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 309,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 329,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 369,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "COMBORICE",
+          "price": 409,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 409,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 469,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Prawns",
+              "price": 509,
+              "foodType": "NON_VEG"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Sizzlers",
+      "displayOrder": 14,
+      "items": [
+        {
+          "name": "VEGORIENTALSIZZLER",
+          "price": 629,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGCHINESESIZZLER",
+          "price": 609,
+          "foodType": "VEG"
+        },
+        {
+          "name": "SOYAGARLICPANEERSIZZLER",
+          "price": 629,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CHICKENPERIPERISIZZLER",
+          "price": 649,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MEXICANCHICKENLOLLIPOPSIZZLER",
+          "price": 699,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHICKENGARLICSIZZLER",
+          "price": 649,
+          "foodType": "NON_VEG"
+        }
+      ]
+    },
+    {
+      "name": "Thai",
+      "displayOrder": 15,
+      "items": [
+        {
+          "name": "THAIGREENCURRY",
+          "price": 449,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 449,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 499,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Seafood",
+              "price": 519,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "THAIREDCURRY",
+          "price": 449,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 449,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 499,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Seafood",
+              "price": 519,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "THAIYELLOW CURRY",
+          "price": 449,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 449,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 499,
+              "foodType": "NON_VEG"
+            },
+            {
+              "name": "Seafood",
+              "price": 519,
+              "foodType": "NON_VEG"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Biryani",
+      "displayOrder": 16,
+      "items": [
+        {
+          "name": "VEGDUM BIRYANI",
+          "price": 429,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGHYDRABADIBRIYANI",
+          "price": 449,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CHICKENDUM BIRYANI",
+          "price": 489,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHICKENHYDRABADIBIRYANI",
+          "price": 499,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "CHICKENTIKKABIRYANI",
+          "price": 519,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "PRAWNSBIRYANI",
+          "price": 579,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MUTTONDUM BIRYANI",
+          "price": 559,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "MUTTONHYDRABADIBIRYANI",
+          "price": 589,
+          "foodType": "NON_VEG"
+        }
+      ]
+    },
+    {
+      "name": "Rice, Dal & Raita",
+      "displayOrder": 17,
+      "items": [
+        {
+          "name": "DALFRY/DALTADKA",
+          "price": 239,
+          "foodType": "VEG"
+        },
+        {
+          "name": "DALMAKHANI",
+          "price": 319,
+          "foodType": "VEG"
+        },
+        {
+          "name": "STEAM RICE(HALF/FULL)",
+          "price": 189,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Half",
+              "price": 189,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Full",
+              "price": 239,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "JEERARICE(HALF/FULL)",
+          "price": 219,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Half",
+              "price": 219,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Full",
+              "price": 259,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "GHEEDUM RICE",
+          "price": 269,
+          "foodType": "VEG"
+        },
+        {
+          "name": "VEGPULAV",
+          "price": 329,
+          "foodType": "VEG"
+        },
+        {
+          "name": "PEASPULAV",
+          "price": 349,
+          "foodType": "VEG"
+        },
+        {
+          "name": "DALKHICHDIGHEE/TADKA",
+          "price": 319,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Ghee",
+              "price": 319,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Tadka",
+              "price": 329,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "PALAKKHICHDI",
+          "price": 329,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CHOICEOFRAITA-(VEG/BOONDI/PINEAPPLE)",
+          "price": 189,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Desserts",
+      "displayOrder": 18,
+      "items": [
+        {
+          "name": "HOTGULABJAMUN",
+          "price": 129,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CHOICEOFICE-CREAM",
+          "price": 149,
+          "foodType": "VEG"
+        },
+        {
+          "name": "HOTSIZZLINGBROWNIE",
+          "price": 379,
+          "foodType": "VEG"
+        },
+        {
+          "name": "GULABJAMUNWITH ICE-CREAM",
+          "price": 159,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CHOCOLATEBOWL",
+          "price": 379,
+          "foodType": "VEG"
+        },
+        {
+          "name": "DEEPFRIEDICE-CREAM",
+          "price": 349,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Sandwiches",
+      "displayOrder": 19,
+      "items": [
+        {
+          "name": "CLUBSANDWICH(VEG/CHICKEN)",
+          "price": 199,
+          "foodType": "NON_VEG",
+          "variants": [
+            {
+              "name": "Veg",
+              "price": 199,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Chicken",
+              "price": 249,
+              "foodType": "NON_VEG"
+            }
+          ]
+        },
+        {
+          "name": "CHEESESANDWICH",
+          "price": 199,
+          "foodType": "VEG"
+        },
+        {
+          "name": "CHICKENTIKKASANDWICH",
+          "price": 249,
+          "foodType": "NON_VEG"
+        },
+        {
+          "name": "PANEERTIKKASANDWICH",
+          "price": 239,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Shakes/Smoothies",
+      "displayOrder": 20,
+      "items": [
+        {
+          "name": "CHOCOLATEMILKSHAKES",
+          "price": 189,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MANGOMILKSHAKES",
+          "price": 189,
+          "foodType": "VEG"
+        },
+        {
+          "name": "STRAWBERRYMILKSHAKES",
+          "price": 189,
+          "foodType": "VEG"
+        },
+        {
+          "name": "BANANAMILKSHAKES",
+          "price": 189,
+          "foodType": "VEG"
+        },
+        {
+          "name": "SMOOTHIES",
+          "price": 229,
+          "foodType": "VEG"
+        },
+        {
+          "name": "STRAWBERRYSMOOTHIE",
+          "price": 229,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MANGOMELONSMOOTHIE",
+          "price": 229,
+          "foodType": "VEG"
+        },
+        {
+          "name": "BANANABASILSMOOTHIE",
+          "price": 229,
+          "foodType": "VEG"
+        }
+      ]
+    },
+    {
+      "name": "Beverages",
+      "displayOrder": 21,
+      "items": [
+        {
+          "name": "SOFTDRINKS",
+          "price": 49,
+          "foodType": "VEG"
+        },
+        {
+          "name": "MASALACHAAS",
+          "price": 119,
+          "foodType": "VEG"
+        },
+        {
+          "name": "FLAVOUREDLASSI",
+          "price": 139,
+          "foodType": "VEG"
+        },
+        {
+          "name": "DIETCOKE",
+          "price": 129,
+          "foodType": "VEG"
+        },
+        {
+          "name": "BOTTLEWATER",
+          "price": 49,
+          "foodType": "VEG"
+        },
+        {
+          "name": "TONICWATER/ENERGYDRINK",
+          "price": 129,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Tonic Water",
+              "price": 129,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Energy Drink",
+              "price": 219,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "TEA/COFFEE",
+          "price": 49,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Tea",
+              "price": 49,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Coffee",
+              "price": 59,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "COLDCOFFEE/WITH ICE-CREAM",
+          "price": 199,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Cold Coffee",
+              "price": 199,
+              "foodType": "VEG"
+            },
+            {
+              "name": "With Ice-Cream",
+              "price": 219,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "FRESH LIMEWATER/SODA",
+          "price": 89,
+          "foodType": "VEG",
+          "variants": [
+            {
+              "name": "Water",
+              "price": 89,
+              "foodType": "VEG"
+            },
+            {
+              "name": "Soda",
+              "price": 109,
+              "foodType": "VEG"
+            }
+          ]
+        },
+        {
+          "name": "CANJUICE",
+          "price": 169,
+          "foodType": "VEG"
+        }
+      ]
+    }
+  ]
+}
