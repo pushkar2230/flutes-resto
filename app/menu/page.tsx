@@ -1,7 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useSearchParams } from "next/navigation";
 import {
   ChevronRight,
@@ -211,6 +216,7 @@ export default function MenuPage() {
     useState("");
 
   const [search, setSearch] = useState("");
+  const deferredSearch = useDeferredValue(search);
 
   const [loading, setLoading] = useState(true);
 
@@ -352,7 +358,7 @@ export default function MenuPage() {
           (category) =>
             category.items.length > 0
         );
-    }, [categories, search]);
+    }, [categories, deferredSearch]);
 
   /* =======================================================
      ACTIVE CATEGORY
@@ -429,8 +435,15 @@ export default function MenuPage() {
 
           <div className="flex items-center justify-between">
 
+            <Link
+              href="/"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm active:scale-95"
+            >
+              ←
+            </Link>
+
             <div>
-              <p className="text-xs font-medium text-[#7A817D]">
+              <p className="text-s font-medium text-[#7A817D]">
                 Explore
               </p>
 
@@ -751,7 +764,7 @@ function MenuItemCard({
 
       {/* IMAGE */}
 
-      <div className="relative h-[100px] w-[100px] shrink-0 overflow-hidden rounded-[18px] bg-[#EDEBE6]">
+      <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-2xl bg-[#EDEBE6]">
 
         {item.image ? (
 
@@ -805,7 +818,7 @@ function MenuItemCard({
             />
           </span>
 
-          <h3 className="line-clamp-2 text-[15px] font-bold leading-tight">
+          <h3 className="line-clamp-2 pr-1 text-[15px] font-bold leading-[1.25]">
             {item.name}
           </h3>
 

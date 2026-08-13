@@ -22,10 +22,6 @@ export default function Header() {
       {/* Top controls */}
       <div className="absolute left-5 right-5 top-6 flex items-center justify-between">
         <button className="flex h-12 w-12 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-md">
-          <Menu size={24} />
-        </button>
-
-        <button className="flex h-12 w-12 items-center justify-center rounded-full bg-black/35 text-white backdrop-blur-md">
           <Bell size={21} />
         </button>
       </div>
@@ -53,7 +49,7 @@ export default function Header() {
 
       {/* Restaurant information */}
       <div className="absolute bottom-0 left-5 right-5">
-        <div className="grid grid-cols-4 overflow-hidden rounded-t-[28px] bg-[#103F35]/95 px-2 py-4 text-center text-white shadow-2xl backdrop-blur-md">
+        <div className="grid grid-cols-4 overflow-hidden rounded-t-[28px] bg-[#103F35]/95 px-3 py-4 text-center text-white shadow-2xl backdrop-blur-md">
           <InfoItem value="4.8" label="Ratings" icon="★" />
           <InfoItem value="25–35 min" label="Delivery" icon="◷" />
           <InfoItem value="Wakad" label="Location" icon="⌖" />
