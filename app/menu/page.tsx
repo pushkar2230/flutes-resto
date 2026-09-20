@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import {
+  Suspense,
   useDeferredValue,
   useEffect,
   useMemo,
@@ -213,7 +214,7 @@ function fuzzyItemMatch(
    MENU PAGE
 ========================================================= */
 
-export default function MenuPage() {
+function MenuPageContent() {
   const searchParams = useSearchParams();
   const categoryFromUrl =
     searchParams.get("category");
@@ -741,6 +742,31 @@ export default function MenuPage() {
       )}
 
     </main>
+  );
+}
+
+export default function MenuPage() {
+  return (
+    <Suspense
+      fallback={
+        <main className="min-h-screen bg-[#F7F8F6]">
+          <div className="mx-auto min-h-screen w-full max-w-[480px] bg-[#F7F8F6] p-5">
+            <div className="h-10 w-32 animate-pulse rounded-lg bg-white" />
+            <div className="mt-5 h-14 animate-pulse rounded-[18px] bg-white" />
+            <div className="mt-5 space-y-3">
+              {[1, 2, 3, 4].map((item) => (
+                <div
+                  key={item}
+                  className="h-[118px] animate-pulse rounded-[22px] bg-white"
+                />
+              ))}
+            </div>
+          </div>
+        </main>
+      }
+    >
+      <MenuPageContent />
+    </Suspense>
   );
 }
 
