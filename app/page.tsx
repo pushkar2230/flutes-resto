@@ -4,6 +4,7 @@ import HeroBanner from "@/components/home/HeroBanner";
 import FoodTypeToggle from "@/components/home/FoodTypeToggle";
 import CategorySlider from "@/components/home/CategorySlider";
 import BestSellerSection from "@/components/home/BestSellerSection";
+import MenuPreview from "@/components/home/MenuPreview";
 import FloatingCart from "@/components/home/FloatingCart";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 
@@ -24,6 +25,8 @@ export default function HomePage() {
         <CategorySlider />
 
         <BestSellerSection />
+
+        <MenuPreview />
 
         <div className="h-32" />
 

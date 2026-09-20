@@ -7,6 +7,144 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Category {
+  id           String     @id @default(cuid())
+  name         String     @unique
+  displayOrder Int        @default(0)
+  isActive     Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  image        String?
+  menuItems    MenuItem[]
+}
+
+model MenuItem {
+  id             String               @id @default(cuid())
+  categoryId     String
+  name           String
+  description    String?
+  price          Decimal?             @db.Decimal(10, 2)
+  foodType       FoodType
+  image          String?
+  isAvailable    Boolean              @default(true)
+  isBestSeller   Boolean              @default(false)
+  isRecommended  Boolean              @default(false)
+  displayOrder   Int                  @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  category       Category             @relation(fields: [categoryId], references: [id])
+  suggestionsFor MenuItemSuggestion[] @relation("MenuItemSuggestions")
+  suggestedBy    MenuItemSuggestion[] @relation("SuggestedForMenuItem")
+  variants       MenuItemVariant[]
+  orderItems     OrderItem[]
+
+  @@index([categoryId])
+  @@index([foodType])
+  @@index([isAvailable])
+}
+
+model MenuItemVariant {
+  id           String    @id @default(cuid())
+  menuItemId   String
+  name         String
+  price        Decimal   @db.Decimal(10, 2)
+  isAvailable  Boolean   @default(true)
+  displayOrder Int       @default(0)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  foodType     FoodType?
+  menuItem     MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@index([menuItemId])
+  @@index([foodType])
+}
+
+model MenuItemSuggestion {
+  id              String   @id @default(cuid())
+  menuItemId      String
+  suggestedItemId String
+  priority        Int      @default(0)
+  isActive        Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  menuItem        MenuItem @relation("MenuItemSuggestions", fields: [menuItemId], references: [id], onDelete: Cascade)
+  suggestedItem   MenuItem @relation("SuggestedForMenuItem", fields: [suggestedItemId], references: [id], onDelete: Cascade)
+
+  @@unique([menuItemId, suggestedItemId])
+  @@index([menuItemId])
+}
+
+model Order {
+  id              String      @id @default(cuid())
+  orderType       OrderType
+  status          OrderStatus @default(PENDING)
+  subtotal        Decimal     @db.Decimal(10, 2)
+  total           Decimal     @db.Decimal(10, 2)
+  paymentId       String?
+  paymentStatus   String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  customerAddress String?
+  customerEmail   String?
+  customerName    String
+  customerPhone   String
+  landmark        String?
+  notes           String?
+  pincode         String?
+  tax             Decimal     @db.Decimal(10, 2)
+  items           OrderItem[]
+
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OrderItem {
+  id         String   @id @default(cuid())
+  orderId    String
+  menuItemId String
+  quantity   Int
+  price      Decimal  @db.Decimal(10, 2)
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+  order      Order    @relation(fields: [orderId], references: [id])
+}
+
+model Admin {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  name      String
+  phone     String?
+}
+
+model RestaurantSetting {
+  id             String   @id @default(cuid())
+  restaurantName String
+  phone          String
+  email          String?
+  address        String
+  deliveryRadius Int      @default(3)
+  isOpen         Boolean  @default(true)
+  openingTime    String
+  closingTime    String
+  logo           String?
+  banner         String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  facebookUrl    String?
+  googleMapsUrl  String?
+  instagramUrl   String?
+  upiId          String?
+  whatsAppNumber String?
+}
+
+model Banner {
+  id        String   @id @default(cuid())
+  title     String
+  image     String
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
 enum FoodType {
   VEG
   NON_VEG
@@ -24,196 +162,4 @@ enum OrderStatus {
   READY
   DELIVERED
   CANCELLED
-}
-
-model Category {
-  id           String  @id @default(cuid())
-  name         String  @unique
-  image        String?
-  displayOrder Int     @default(0)
-  isActive     Boolean @default(true)
-
-  menuItems MenuItem[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model MenuItem {
-  id String @id @default(cuid())
-
-  categoryId String
-  category   Category @relation(fields: [categoryId], references: [id])
-
-  name        String
-  description String?
-  price       Decimal? @db.Decimal(10, 2)
-
-  foodType FoodType
-
-  image String?
-
-  isAvailable   Boolean @default(true)
-  isBestSeller  Boolean @default(false)
-  isRecommended Boolean @default(false)
-
-  displayOrder Int @default(0)
-
-  orderItems OrderItem[]
-
-  suggestionsFor MenuItemSuggestion[] @relation("MenuItemSuggestions")
-  suggestedBy    MenuItemSuggestion[] @relation("SuggestedForMenuItem")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  variants MenuItemVariant[]
-
-  @@index([categoryId])
-  @@index([foodType])
-  @@index([isAvailable])
-}
-
-model MenuItemVariant {
-  id String @id @default(cuid())
-
-  menuItemId String
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
-
-  name     String
-  price    Decimal   @db.Decimal(10, 2)
-  foodType FoodType?
-
-  isAvailable  Boolean @default(true)
-  displayOrder Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([menuItemId])
-  @@index([foodType])
-}
-
-model MenuItemSuggestion {
-  id String @id @default(cuid())
-
-  menuItemId      String
-  suggestedItemId String
-
-  priority Int     @default(0)
-  isActive Boolean @default(true)
-
-  menuItem MenuItem @relation("MenuItemSuggestions", fields: [menuItemId], references: [id], onDelete: Cascade)
-
-  suggestedItem MenuItem @relation("SuggestedForMenuItem", fields: [suggestedItemId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-
-  @@unique([menuItemId, suggestedItemId])
-  @@index([menuItemId])
-}
-
-model Order {
-  id String @id @default(cuid())
-
-  customerName    String
-  customerPhone   String
-  customerEmail   String?
-  customerAddress String?
-
-  landmark String?
-
-  pincode String?
-
-  orderType OrderType
-  status    OrderStatus @default(PENDING)
-
-  subtotal Decimal @db.Decimal(10, 2)
-  tax      Decimal @db.Decimal(10, 2)
-  total    Decimal @db.Decimal(10, 2)
-
-  paymentId     String?
-  paymentStatus String?
-
-  items OrderItem[]
-  notes String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([status])
-  @@index([createdAt])
-}
-
-model OrderItem {
-  id String @id @default(cuid())
-
-  orderId String
-  order   Order  @relation(fields: [orderId], references: [id])
-
-  menuItemId String
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-
-  quantity Int
-
-  price Decimal @db.Decimal(10, 2)
-}
-
-model Admin {
-  id String @id @default(cuid())
-
-  username String @unique
-  password String
-
-  createdAt DateTime @default(now())
-
-  name String
-
-  phone String?
-}
-
-model RestaurantSetting {
-  id String @id @default(cuid())
-
-  restaurantName String
-
-  phone String
-
-  email String?
-
-  address String
-
-  deliveryRadius Int @default(3)
-
-  isOpen Boolean @default(true)
-
-  openingTime String
-
-  closingTime String
-
-  logo String?
-
-  banner String?
-
-  upiId          String?
-  instagramUrl   String?
-  facebookUrl    String?
-  googleMapsUrl  String?
-  whatsAppNumber String?
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-}
-
-model Banner {
-  id String @id @default(cuid())
-
-  title String
-
-  image String
-
-  active Boolean @default(true)
-
-  createdAt DateTime @default(now())
 }

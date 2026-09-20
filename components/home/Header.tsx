@@ -13,6 +13,7 @@ export default function Header() {
         alt="Flutes Resto & Bar"
         fill
         priority
+        sizes="(max-width: 480px) 100vw, 480px"
         className="object-cover blur-[2px]"
       />
 

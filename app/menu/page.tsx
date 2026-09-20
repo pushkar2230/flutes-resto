@@ -64,6 +64,15 @@ function normalizeSearchText(value: string) {
     .trim();
 }
 
+function formatMenuItemName(name: string) {
+  return name
+    .replace(/([a-zA-Z])(\d+)/g, "$1 $2")
+    .replace(/(\d+)([a-zA-Z])/g, "$1 $2")
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 function levenshtein(a: string, b: string) {
   const matrix: number[][] = [];
 
@@ -538,41 +547,31 @@ export default function MenuPage() {
           <>
 
             {/* =================================================
-                CATEGORY BAR
-            ================================================= */}
+    CATEGORY BAR
+================================================= */}
 
-            <div className="sticky top-0 z-30 border-b border-black/5 bg-[#F7F8F6]/95 py-3 backdrop-blur-md">
+            <div className="sticky top-0 z-30 border-b border-black/5 bg-[#F7F8F6]/95 py-3 backdrop-blur-xl">
+              <div className="flex gap-2.5 overflow-x-auto px-5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {categories.map((category) => {
+                  const active = category.id === activeCategory;
 
-              <div className="flex gap-2 overflow-x-auto px-5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-
-                {categories.map(
-                  (category) => {
-                    const active =
-                      category.id ===
-                      activeCategory;
-
-                    return (
-                      <button
-                        key={category.id}
-                        type="button"
-                        onClick={() => {
-                          setActiveCategory(
-                            category.id
-                          );
-
-                          setSearch("");
-                        }}
-                        className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2.5 text-[12px] font-bold transition-all active:scale-95 ${active
-                          ? "bg-[#0F5143] text-white shadow-sm"
-                          : "bg-white text-[#555D59] shadow-sm"
-                          }`}
-                      >
-                        {category.name}
-                      </button>
-                    );
-                  }
-                )}
-
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveCategory(category.id);
+                        setSearch("");
+                      }}
+                      className={`shrink-0 whitespace-nowrap rounded-full px-5 py-3 text-[12px] font-extrabold transition-all duration-200 active:scale-95 ${active
+                        ? "bg-[#0F5143] text-white shadow-[0_5px_14px_rgba(15,81,67,0.20)]"
+                        : "bg-white text-[#555D59] shadow-[0_3px_12px_rgba(0,0,0,0.045)] ring-1 ring-black/[0.025] hover:bg-[#EEF6F2]"
+                        }`}
+                    >
+                      {category.name}
+                    </button>
+                  );
+                })}
               </div>
 
             </div>
@@ -756,114 +755,96 @@ function MenuItemCard({
   item: MenuItem;
   onAdd: () => void;
 }) {
-  const hasVariants =
-    item.variants.length > 0;
+  const hasVariants = item.variants.length > 0;
 
   return (
-    <article className="flex gap-3 rounded-[22px] bg-white p-3 shadow-[0_5px_20px_rgba(0,0,0,0.05)] transition-all">
-
-      {/* IMAGE */}
-
-      <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-2xl bg-[#EDEBE6]">
-
-        {item.image ? (
-
-          <img
-            src={item.image}
-            alt={item.name}
-            className="h-full w-full object-cover"
-          />
-
-        ) : (
-
-          <div className="flex h-full items-center justify-center text-3xl">
-            {item.foodType === "VEG"
-              ? "🥗"
-              : "🍗"}
-          </div>
-
-        )}
-
-        {/* BESTSELLER */}
-
-        {item.isBestSeller && (
-          <span className="absolute bottom-2 left-2 rounded-full bg-[#E58A18] px-2 py-1 text-[9px] font-bold text-white shadow-sm">
-            BESTSELLER
-          </span>
-        )}
-
-      </div>
-
-      {/* DETAILS */}
-
-      <div className="min-w-0 flex-1 py-1">
-
-        {/* NAME */}
-
-        <div className="flex items-start gap-2">
-
-          {/* VEG / NON VEG */}
-
-          <span
-            className={`mt-1 flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px] border-2 ${item.foodType === "VEG"
-              ? "border-green-600"
-              : "border-red-600"
-              }`}
-          >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${item.foodType === "VEG"
-                ? "bg-green-600"
-                : "bg-red-600"
-                }`}
+    <article className="group relative overflow-hidden rounded-[24px] bg-white p-3 shadow-[0_6px_24px_rgba(0,0,0,0.055)] ring-1 ring-black/[0.025] transition-all duration-200 active:scale-[0.99]">
+      <div className="flex gap-3.5">
+        {/* IMAGE */}
+        <div className="relative h-[112px] w-[112px] shrink-0 overflow-hidden rounded-[20px] bg-[#EEECE7]">
+          {item.image ? (
+            <img
+              src={item.image}
+              alt={formatMenuItemName(item.name)}
+              loading="lazy"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
             />
-          </span>
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-[#F1F2EE] text-4xl">
+              {item.foodType === "VEG" ? "🥗" : "🍗"}
+            </div>
+          )}
 
-          <h3 className="line-clamp-2 pr-1 text-[15px] font-bold leading-[1.25]">
-            {item.name}
-          </h3>
+          {/* IMAGE GRADIENT */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/25 to-transparent" />
 
+          {/* BESTSELLER */}
+          {item.isBestSeller && (
+            <span className="absolute bottom-2 left-2 rounded-full bg-[#E58A18] px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-white shadow-md">
+              BESTSELLER
+            </span>
+          )}
         </div>
 
-        {/* DESCRIPTION */}
-
-        {item.description && (
-          <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-[#7A817D]">
-            {item.description}
-          </p>
-        )}
-
-        {/* PRICE + ADD */}
-
-        <div className="mt-3 flex items-center justify-between gap-2">
-
-          <div className="min-w-0">
-
-            <span className="text-[17px] font-extrabold">
-              ₹{item.price}
+        {/* DETAILS */}
+        <div className="flex min-w-0 flex-1 flex-col py-0.5">
+          {/* NAME */}
+          <div className="flex items-start gap-2">
+            {/* VEG / NON-VEG */}
+            <span
+              className={`mt-1 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] border-2 ${item.foodType === "VEG"
+                ? "border-green-600"
+                : "border-red-600"
+                }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${item.foodType === "VEG"
+                  ? "bg-green-600"
+                  : "bg-red-600"
+                  }`}
+              />
             </span>
 
-            {hasVariants && (
-              <span className="ml-2 text-[10px] text-[#7A817D]">
-                {item.variants.length}{" "}
-                options
-              </span>
-            )}
-
+            <h3 className="line-clamp-2 pr-1 text-[16px] font-extrabold leading-[1.25] tracking-[-0.01em] text-[#171A19]">
+              {formatMenuItemName(item.name)}
+            </h3>
           </div>
 
-          <button
-            type="button"
-            onClick={onAdd}
-            className="flex shrink-0 items-center gap-1 rounded-full bg-[#0F5143] px-4 py-2 text-[11px] font-bold text-white transition-transform active:scale-95"
-          >
-            ADD
-            <ChevronRight size={14} />
-          </button>
+          {/* DESCRIPTION */}
+          {item.description && (
+            <p className="mt-1.5 line-clamp-2 text-[11px] leading-[1.45] text-[#7A817D]">
+              {item.description}
+            </p>
+          )}
 
+          {/* BOTTOM */}
+          <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+            <div className="min-w-0">
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-[18px] font-extrabold tracking-tight text-[#171A19]">
+                  ₹{item.price}
+                </span>
+
+                {hasVariants && (
+                  <span className="text-[10px] font-medium text-[#8A918D]">
+                    {item.variants.length} options
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* ADD BUTTON */}
+            <button
+              type="button"
+              onClick={onAdd}
+              className="flex h-9 shrink-0 items-center gap-1 rounded-full bg-[#0F5143] px-4 text-[11px] font-extrabold tracking-wide text-white shadow-[0_5px_14px_rgba(15,81,67,0.18)] transition-all duration-200 hover:bg-[#0B4539] active:scale-95"
+            >
+              ADD
+              <ChevronRight size={14} strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
-
       </div>
-
     </article>
   );
 }
@@ -971,7 +952,7 @@ function VariantSheet({
               </span>
 
               <h2 className="text-[20px] font-extrabold leading-tight">
-                {item.name}
+                {formatMenuItemName(item.name)}
               </h2>
 
             </div>
