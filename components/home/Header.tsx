@@ -40,7 +40,7 @@ export default function Header() {
           width={190}
           height={135}
           priority
-          className="h-[185px] w-auto object-contain mix-blend-screen drop-shadow-2xl invert"
+          className="h-[185px] w-auto object-contain mix-blend-screen drop-shadow-2xl"
         />
 
         <p className="-mt-2 text-[15px] font-medium tracking-wide text-white/90">
