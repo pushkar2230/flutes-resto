@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import { useEffect, useState } from "react";
 
 type Category = {
@@ -84,92 +86,114 @@ export default function CategorySlider() {
     });
 
   return (
-    <section className="pt-7">
-      {/* Header */}
-      <div className="mb-4 flex items-center justify-between px-5">
-        <h2 className="text-[21px] font-bold text-[#171A19]">
-          Popular Categories
-        </h2>
+    <section className="pt-8">
+      {/* Heading */}
+      <div className="mb-5 flex items-end justify-between px-5">
+        <div>
+          <p className="mb-1 text-[9px] font-semibold uppercase tracking-[0.22em] text-[#B58A42]">
+            Explore
+          </p>
+
+          <h2 className="text-[22px] font-semibold tracking-[-0.03em] text-[#171A19]">
+            Popular Categories
+          </h2>
+        </div>
 
         <button
           type="button"
-          className="text-sm font-medium text-[#B56A16]"
+          className="
+            flex items-center gap-1
+            rounded-full
+            border border-[#D9DDD9]
+            bg-white
+            px-3 py-1.5
+            text-[11px]
+            font-semibold
+            text-[#103F35]
+            shadow-[0_2px_8px_rgba(16,63,53,0.05)]
+          "
         >
-          View all →
+          Explore
+          <ArrowUpRight size={13} strokeWidth={2} />
         </button>
       </div>
 
       {/* Loading */}
       {loading ? (
-        <div className="flex gap-5 overflow-hidden px-5 pb-2">
+        <div className="flex gap-4 overflow-hidden px-5">
           {Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="flex min-w-[68px] flex-col items-center gap-2"
+              className="min-w-[86px] animate-pulse"
             >
-              <div className="h-[64px] w-[64px] animate-pulse rounded-full border-4 border-white bg-[#E5E6E3] shadow-md" />
-
-              <div className="h-3 w-14 animate-pulse rounded bg-[#E5E6E3]" />
+              <div className="h-[82px] w-[82px] rounded-[24px] bg-[#E4E7E3]" />
+              <div className="mx-auto mt-2 h-3 w-14 rounded bg-[#E4E7E3]" />
             </div>
           ))}
         </div>
       ) : (
-        <div className="flex gap-5 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-4 overflow-x-auto px-5 pb-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
           {popularCategories.map((category) => (
             <button
               key={category.label}
               type="button"
-              className="flex min-w-[68px] flex-col items-center gap-2"
+              className="group min-w-[86px] text-left"
             >
-              {/* Category Image */}
-              <div className="relative h-[64px] w-[64px] overflow-hidden rounded-full border-4 border-white bg-[#EDEBE6] shadow-md">
+              {/* Image tile */}
+              <div
+                className="
+                  relative
+                  h-[82px]
+                  w-[82px]
+                  overflow-hidden
+                  rounded-[24px]
+                  border
+                  border-white
+                  bg-[#E8ECE8]
+                  shadow-[0_8px_22px_rgba(16,63,53,0.10)]
+                "
+              >
                 {category.image ? (
-                  <img
+                  <Image
                     src={category.image}
                     alt={category.label}
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="82px"
+                    className="
+                      object-cover
+                      transition-transform
+                      duration-500
+                      group-hover:scale-105
+                    "
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#E8EEE9] to-[#D8E3DE]">
-                    <span className="text-[25px]">
-                      {getCategoryEmoji(category.label)}
+                  <div className="flex h-full w-full items-center justify-center bg-[#103F35]">
+                    <span className="text-[24px] font-light text-[#D6A34A]">
+                      {category.label.charAt(0)}
                     </span>
                   </div>
                 )}
+
+                {/* Image shade */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-transparent" />
               </div>
 
-              <span className="whitespace-nowrap text-[12px] font-medium text-[#353A37]">
-                {category.label}
-              </span>
+              {/* Category name */}
+              <div className="mt-2 flex items-center justify-between px-1">
+                <span className="text-[12px] font-semibold text-[#252A27]">
+                  {category.label}
+                </span>
+
+                <ArrowUpRight
+                  size={11}
+                  className="text-[#9A9F9B]"
+                  strokeWidth={1.8}
+                />
+              </div>
             </button>
           ))}
         </div>
       )}
     </section>
   );
-}
-
-function getCategoryEmoji(label: string) {
-  switch (label) {
-    case "Chicken":
-      return "🍗";
-
-    case "Biryani":
-      return "🍚";
-
-    case "Chinese":
-      return "🥢";
-
-    case "Starters":
-      return "🍽️";
-
-    case "Beverages":
-      return "🥤";
-
-    case "Desserts":
-      return "🍰";
-
-    default:
-      return "🍴";
-  }
 }

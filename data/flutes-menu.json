@@ -75,12 +75,10 @@
     },
     {
       "name": "Soup Veg/Non-Veg",
-      "displayOrder": 2,
       "items": [
         {
-          "name": "MANCHOW SOUP",
-          "price": 249,
-          "foodType": "NON_VEG",
+          "name": "Manchow Soup",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -100,9 +98,8 @@
           ]
         },
         {
-          "name": "HOT&SOUR",
-          "price": 249,
-          "foodType": "NON_VEG",
+          "name": "Hot & Sour",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -122,9 +119,8 @@
           ]
         },
         {
-          "name": "SWEETCORN",
-          "price": 249,
-          "foodType": "NON_VEG",
+          "name": "Sweetcorn",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -144,9 +140,8 @@
           ]
         },
         {
-          "name": "CLEARSOUP",
-          "price": 249,
-          "foodType": "NON_VEG",
+          "name": "Clear Soup",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -166,9 +161,8 @@
           ]
         },
         {
-          "name": "CREAM OF",
-          "price": 269,
-          "foodType": "NON_VEG",
+          "name": "Cream Of",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -188,9 +182,8 @@
           ]
         },
         {
-          "name": "SHORBA",
-          "price": 249,
-          "foodType": "NON_VEG",
+          "name": "Shorba",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -210,9 +203,8 @@
           ]
         },
         {
-          "name": "WANTON",
-          "price": 249,
-          "foodType": "NON_VEG",
+          "name": "Wanton",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -232,9 +224,8 @@
           ]
         },
         {
-          "name": "TOM YUM",
-          "price": 249,
-          "foodType": "NON_VEG",
+          "name": "Tom Yum",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -254,9 +245,8 @@
           ]
         },
         {
-          "name": "THAISPICE",
-          "price": 269,
-          "foodType": "NON_VEG",
+          "name": "Thai Spice",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -276,14 +266,13 @@
           ]
         },
         {
-          "name": "ROSTEDALMOND BROCCOLISOUP",
-          "price": 299,
-          "foodType": "NON_VEG"
+          "name": "Rosted Almond Broccoli Soup",
+          "foodType": "VEG",
+          "price": 299
         },
         {
-          "name": "TOMKHA",
-          "price": 269,
-          "foodType": "NON_VEG",
+          "name": "Tomkha",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -303,9 +292,8 @@
           ]
         },
         {
-          "name": "LUNGFUNG",
-          "price": 249,
-          "foodType": "NON_VEG",
+          "name": "Lung Fung",
+          "foodType": "VEG",
           "variants": [
             {
               "name": "Veg",
@@ -324,7 +312,8 @@
             }
           ]
         }
-      ]
+      ],
+      "displayOrder": 2
     },
     {
       "name": "Quick Bites",

@@ -10,16 +10,18 @@ import {
 } from "react";
 import { useSearchParams } from "next/navigation";
 import {
+  Check,
   ChevronRight,
+  Plus,
   Search,
   ShoppingCart,
+  Utensils,
   X,
 } from "lucide-react";
 
 import {
   addToCart,
   getCart,
-  type CartItem,
 } from "@/lib/cart";
 
 /* =========================================================
@@ -88,7 +90,7 @@ function levenshtein(a: string, b: string) {
   for (let i = 1; i <= b.length; i++) {
     for (let j = 1; j <= a.length; j++) {
       if (b.charAt(i - 1) === a.charAt(j - 1)) {
-        matrix[i][j] = matrix[i - 1][j - 1];
+        matrix[i][j] = matrix[i - 1][j];
       } else {
         matrix[i][j] = Math.min(
           matrix[i - 1][j] + 1,
@@ -110,7 +112,6 @@ function wordMatches(
     return false;
   }
 
-  /* Direct match */
   if (
     itemWord.includes(queryWord) ||
     queryWord.includes(itemWord)
@@ -118,7 +119,6 @@ function wordMatches(
     return true;
   }
 
-  /* Small spelling mistakes */
   const distance = levenshtein(
     queryWord,
     itemWord
@@ -150,9 +150,10 @@ function fuzzyItemMatch(
     return true;
   }
 
-  const searchableText = normalizeSearchText(
-    `${item.name} ${item.description ?? ""}`
-  );
+  const searchableText =
+    normalizeSearchText(
+      `${item.name} ${item.description ?? ""}`
+    );
 
   /* Normal full-text match */
   if (searchableText.includes(query)) {
@@ -160,45 +161,30 @@ function fuzzyItemMatch(
   }
 
   const queryWords = query.split(" ");
-  const itemWords = searchableText.split(" ");
+  const itemWords =
+    searchableText.split(" ");
 
-  /*
-   * Every searched word should match
-   * some word in item name/description.
-   *
-   * Example:
-   *
-   * corn cheese ball
-   *
-   * matches:
-   *
-   * cheese corn ball
-   */
-  const allWordsMatch = queryWords.every(
-    (queryWord) =>
+  /* Word-by-word fuzzy matching */
+  const allWordsMatch =
+    queryWords.every((queryWord) =>
       itemWords.some((itemWord) =>
-        wordMatches(queryWord, itemWord)
+        wordMatches(
+          queryWord,
+          itemWord
+        )
       )
-  );
+    );
 
   if (allWordsMatch) {
     return true;
   }
 
-  /*
-   * Handle joined words.
-   *
-   * chicken65
-   * chicken 65
-   *
-   * cheese-corn
-   * cheese corn
-   */
-  const compactQuery = query.replace(/\s/g, "");
-  const compactItem = searchableText.replace(
-    /\s/g,
-    ""
-  );
+  /* Joined-word matching */
+  const compactQuery =
+    query.replace(/\s/g, "");
+
+  const compactItem =
+    searchableText.replace(/\s/g, "");
 
   if (
     compactItem.includes(compactQuery) ||
@@ -211,13 +197,18 @@ function fuzzyItemMatch(
 }
 
 /* =========================================================
-   MENU PAGE
+   MENU PAGE CONTENT
 ========================================================= */
 
 function MenuPageContent() {
-  const searchParams = useSearchParams();
+  const searchParams =
+    useSearchParams();
+
   const categoryFromUrl =
     searchParams.get("category");
+
+  const searchFromUrl =
+    searchParams.get("search") ?? "";
 
   const [categories, setCategories] =
     useState<Category[]>([]);
@@ -225,10 +216,14 @@ function MenuPageContent() {
   const [activeCategory, setActiveCategory] =
     useState("");
 
-  const [search, setSearch] = useState("");
-  const deferredSearch = useDeferredValue(search);
+  const [search, setSearch] =
+    useState(searchFromUrl);
 
-  const [loading, setLoading] = useState(true);
+  const deferredSearch =
+    useDeferredValue(search);
+
+  const [loading, setLoading] =
+    useState(true);
 
   const [selectedItem, setSelectedItem] =
     useState<MenuItem | null>(null);
@@ -237,7 +232,7 @@ function MenuPageContent() {
     useState(0);
 
   /* =======================================================
-     LOAD CART COUNT
+     CART COUNT
   ======================================================= */
 
   useEffect(() => {
@@ -268,9 +263,31 @@ function MenuPageContent() {
     };
   }, []);
 
+  /* =======================================================
+     SYNC SEARCH WITH URL
+  ======================================================= */
 
   useEffect(() => {
-    if (!categories.length) return;
+    const urlSearch =
+      searchParams.get("search") ?? "";
+
+    setSearch((currentSearch) => {
+      if (currentSearch === urlSearch) {
+        return currentSearch;
+      }
+
+      return urlSearch;
+    });
+  }, [searchParams]);
+
+  /* =======================================================
+     CATEGORY FROM URL
+  ======================================================= */
+
+  useEffect(() => {
+    if (!categories.length) {
+      return;
+    }
 
     if (
       categoryFromUrl &&
@@ -279,9 +296,13 @@ function MenuPageContent() {
           category.id === categoryFromUrl
       )
     ) {
-      setActiveCategory(categoryFromUrl);
+      setActiveCategory(
+        categoryFromUrl
+      );
     } else if (!activeCategory) {
-      setActiveCategory(categories[0].id);
+      setActiveCategory(
+        categories[0].id
+      );
     }
   }, [
     categories,
@@ -296,9 +317,8 @@ function MenuPageContent() {
   useEffect(() => {
     const loadMenu = async () => {
       try {
-        const response = await fetch(
-          "/api/menu"
-        );
+        const response =
+          await fetch("/api/menu");
 
         if (!response.ok) {
           throw new Error(
@@ -306,7 +326,8 @@ function MenuPageContent() {
           );
         }
 
-        const data = await response.json();
+        const data =
+          await response.json();
 
         if (data.success) {
           const loadedCategories: Category[] =
@@ -316,16 +337,24 @@ function MenuPageContent() {
             loadedCategories
           );
 
-          if (data.categories.length > 0) {
-            const categoryExists = data.categories.some(
-              (category: Category) =>
-                category.id === categoryFromUrl
-            );
+          if (
+            loadedCategories.length > 0
+          ) {
+            const categoryExists =
+              loadedCategories.some(
+                (category) =>
+                  category.id ===
+                  categoryFromUrl
+              );
 
             if (categoryExists) {
-              setActiveCategory(categoryFromUrl!);
+              setActiveCategory(
+                categoryFromUrl!
+              );
             } else {
-              setActiveCategory(data.categories[0].id);
+              setActiveCategory(
+                loadedCategories[0].id
+              );
             }
           }
         }
@@ -348,7 +377,7 @@ function MenuPageContent() {
 
   const filteredCategories =
     useMemo(() => {
-      if (!search.trim()) {
+      if (!deferredSearch.trim()) {
         return categories;
       }
 
@@ -360,7 +389,7 @@ function MenuPageContent() {
             (item) =>
               fuzzyItemMatch(
                 item,
-                search
+                deferredSearch
               )
           ),
         }))
@@ -368,7 +397,10 @@ function MenuPageContent() {
           (category) =>
             category.items.length > 0
         );
-    }, [categories, deferredSearch]);
+    }, [
+      categories,
+      deferredSearch,
+    ]);
 
   /* =======================================================
      ACTIVE CATEGORY
@@ -377,13 +409,15 @@ function MenuPageContent() {
   const activeItems =
     filteredCategories.find(
       (category) =>
-        category.id === activeCategory
+        category.id ===
+        activeCategory
     )?.items ?? [];
 
   const activeCategoryName =
     categories.find(
       (category) =>
-        category.id === activeCategory
+        category.id ===
+        activeCategory
     )?.name ?? "";
 
   /* =======================================================
@@ -393,32 +427,18 @@ function MenuPageContent() {
   const handleAddItem = (
     item: MenuItem
   ) => {
-    /*
-     * Items having variants should open
-     * the variant selector first.
-     */
     if (item.variants.length > 0) {
       setSelectedItem(item);
       return;
     }
 
-    /*
-     * Normal item:
-     * directly add to cart.
-     */
     addToCart({
       cartId: item.id,
-
       menuItemId: item.id,
-
       name: item.name,
-
       price: item.price,
-
       quantity: 1,
-
       image: item.image,
-
       foodType: item.foodType,
     });
 
@@ -433,48 +453,143 @@ function MenuPageContent() {
   ======================================================= */
 
   return (
-    <main className="min-h-screen bg-[#F7F8F6] text-[#171A19]">
+    <main className="min-h-screen bg-[#EDEFEA] text-[#171A19]">
 
-      <div className="mx-auto min-h-screen w-full max-w-[480px] overflow-hidden bg-[#F7F8F6] shadow-[0_0_40px_rgba(0,0,0,0.08)]">
+      {/* =================================================
+          CENTERED MOBILE APP SHELL
+      ================================================= */}
+
+      <div
+        className="
+          mx-auto
+          min-h-screen
+          w-full
+          max-w-[480px]
+          overflow-hidden
+          bg-[#F7F8F6]
+          shadow-[0_0_60px_rgba(16,63,53,0.12)]
+        "
+      >
 
         {/* =================================================
             HEADER
         ================================================= */}
 
-        <header className="bg-[#F7F8F6] px-5 pb-4 pt-5">
+        <header
+          className="
+            bg-[#F7F8F6]
+            px-5
+            pb-5
+            pt-5
+          "
+        >
 
           <div className="flex items-center justify-between">
 
+            {/* BACK */}
+
             <Link
               href="/"
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-white shadow-sm active:scale-95"
+              aria-label="Back to home"
+              className="
+                flex
+                h-11
+                w-11
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#E4E7E3]
+                bg-white
+                text-[#103F35]
+                shadow-[0_5px_18px_rgba(16,63,53,0.06)]
+                transition-all
+                active:scale-95
+              "
             >
-              ←
+              <span className="text-[18px]">
+                ←
+              </span>
             </Link>
 
-            <div>
-              <p className="text-s font-medium text-[#7A817D]">
+            {/* TITLE */}
+
+            <div className="text-center">
+
+              <p
+                className="
+                  text-[9px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.25em]
+                  text-[#B58A42]
+                "
+              >
                 Explore
               </p>
 
-              <h1 className="text-[28px] font-extrabold tracking-tight">
+              <h1
+                className="
+                  mt-0.5
+                  text-[28px]
+                  font-semibold
+                  tracking-[-0.04em]
+                  text-[#171A19]
+                "
+              >
                 Our Menu
               </h1>
+
             </div>
 
             {/* CART */}
 
             <Link
               href="/cart"
-              className="relative flex h-11 w-11 items-center justify-center rounded-full bg-white shadow-sm transition active:scale-95"
+              aria-label="Shopping cart"
+              className="
+                relative
+                flex
+                h-11
+                w-11
+                items-center
+                justify-center
+                rounded-full
+                border
+                border-[#E4E7E3]
+                bg-white
+                text-[#103F35]
+                shadow-[0_5px_18px_rgba(16,63,53,0.06)]
+                transition-all
+                active:scale-95
+              "
             >
               <ShoppingCart
                 size={20}
-                className="text-[#0F5143]"
+                strokeWidth={1.8}
               />
 
               {cartCount > 0 && (
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-[#E58A18] px-1 text-[10px] font-extrabold text-white">
+                <span
+                  className="
+                    absolute
+                    -right-1
+                    -top-1
+                    flex
+                    h-5
+                    min-w-5
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-[#B58A42]
+                    px-1
+                    text-[9px]
+                    font-bold
+                    text-white
+                    ring-2
+                    ring-[#F7F8F6]
+                  "
+                >
                   {cartCount > 99
                     ? "99+"
                     : cartCount}
@@ -486,11 +601,26 @@ function MenuPageContent() {
 
           {/* SEARCH */}
 
-          <div className="mt-4 flex items-center gap-3 rounded-[18px] bg-white px-4 py-3.5 shadow-[0_4px_18px_rgba(0,0,0,0.05)]">
+          <div
+            className="
+              mt-5
+              flex
+              h-[58px]
+              items-center
+              gap-3
+              rounded-[20px]
+              border
+              border-[#E1E5E1]
+              bg-white
+              px-5
+              shadow-[0_8px_28px_rgba(16,63,53,0.065)]
+            "
+          >
 
             <Search
-              size={19}
-              className="shrink-0 text-[#7A817D]"
+              size={21}
+              strokeWidth={1.8}
+              className="shrink-0 text-[#6F7772]"
             />
 
             <input
@@ -501,8 +631,18 @@ function MenuPageContent() {
                   event.target.value
                 )
               }
-              placeholder="Search dishes..."
-              className="w-full bg-transparent text-sm outline-none placeholder:text-[#9A9F9C]"
+              placeholder="Search dishes, cuisines..."
+              className="
+                min-w-0
+                flex-1
+                bg-transparent
+                text-[14px]
+                font-medium
+                text-[#171A19]
+                outline-none
+                placeholder:text-[#9A9F9C]
+              "
+              aria-label="Search dishes"
             />
 
             {search && (
@@ -511,9 +651,25 @@ function MenuPageContent() {
                 onClick={() =>
                   setSearch("")
                 }
-                className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#F0F2EF]"
+                aria-label="Clear search"
+                className="
+                  flex
+                  h-8
+                  w-8
+                  shrink-0
+                  items-center
+                  justify-center
+                  rounded-full
+                  bg-[#F1F3F0]
+                  text-[#68706B]
+                  transition-transform
+                  active:scale-90
+                "
               >
-                <X size={15} />
+                <X
+                  size={15}
+                  strokeWidth={2}
+                />
               </button>
             )}
 
@@ -526,14 +682,65 @@ function MenuPageContent() {
         ================================================= */}
 
         {loading && (
-          <div className="space-y-4 px-5 pt-4">
+          <div className="space-y-4 px-5 pt-5">
 
             {[1, 2, 3, 4].map(
               (item) => (
                 <div
                   key={item}
-                  className="h-[118px] animate-pulse rounded-[22px] bg-white"
-                />
+                  className="
+                    overflow-hidden
+                    rounded-[26px]
+                    border
+                    border-[#E6E8E4]
+                    bg-white
+                  "
+                >
+                  <div className="flex gap-4 p-3.5">
+
+                    <div
+                      className="
+                        h-[132px]
+                        w-[132px]
+                        shrink-0
+                        animate-pulse
+                        rounded-[22px]
+                        bg-[#E7E9E5]
+                      "
+                    />
+
+                    <div
+                      className="
+                        flex
+                        flex-1
+                        flex-col
+                        justify-between
+                        py-1
+                      "
+                    >
+
+                      <div className="space-y-3">
+
+                        <div className="h-5 w-4/5 animate-pulse rounded bg-[#E7E9E5]" />
+
+                        <div className="h-3 w-full animate-pulse rounded bg-[#EEF0ED]" />
+
+                        <div className="h-3 w-2/3 animate-pulse rounded bg-[#EEF0ED]" />
+
+                      </div>
+
+                      <div className="flex items-end justify-between">
+
+                        <div className="h-6 w-20 animate-pulse rounded bg-[#E7E9E5]" />
+
+                        <div className="h-10 w-20 animate-pulse rounded-full bg-[#E7E9E5]" />
+
+                      </div>
+
+                    </div>
+
+                  </div>
+                </div>
               )
             )}
 
@@ -548,31 +755,72 @@ function MenuPageContent() {
           <>
 
             {/* =================================================
-    CATEGORY BAR
-================================================= */}
+                CATEGORY BAR
+            ================================================= */}
 
-            <div className="sticky top-0 z-30 border-b border-black/5 bg-[#F7F8F6]/95 py-3 backdrop-blur-xl">
-              <div className="flex gap-2.5 overflow-x-auto px-5 pb-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {categories.map((category) => {
-                  const active = category.id === activeCategory;
+            <div
+              className="
+                sticky
+                top-0
+                z-30
+                border-b
+                border-[#E2E5E1]
+                bg-[#F7F8F6]/95
+                py-4
+                backdrop-blur-md
+              "
+            >
 
-                  return (
-                    <button
-                      key={category.id}
-                      type="button"
-                      onClick={() => {
-                        setActiveCategory(category.id);
-                        setSearch("");
-                      }}
-                      className={`shrink-0 whitespace-nowrap rounded-full px-5 py-3 text-[12px] font-extrabold transition-all duration-200 active:scale-95 ${active
-                        ? "bg-[#0F5143] text-white shadow-[0_5px_14px_rgba(15,81,67,0.20)]"
-                        : "bg-white text-[#555D59] shadow-[0_3px_12px_rgba(0,0,0,0.045)] ring-1 ring-black/[0.025] hover:bg-[#EEF6F2]"
-                        }`}
-                    >
-                      {category.name}
-                    </button>
-                  );
-                })}
+              <div
+                className="
+                  flex
+                  gap-2.5
+                  overflow-x-auto
+                  px-5
+                  [scrollbar-width:none]
+                  [&::-webkit-scrollbar]:hidden
+                "
+              >
+
+                {categories.map(
+                  (category) => {
+                    const active =
+                      category.id ===
+                      activeCategory;
+
+                    return (
+                      <button
+                        key={category.id}
+                        type="button"
+                        onClick={() => {
+                          setActiveCategory(
+                            category.id
+                          );
+                          setSearch("");
+                        }}
+                        className={`
+                          shrink-0
+                          whitespace-nowrap
+                          rounded-full
+                          px-5
+                          py-3
+                          text-[11px]
+                          font-semibold
+                          transition-all
+                          duration-200
+                          active:scale-95
+                          ${active
+                            ? "bg-[#103F35] text-white shadow-[0_6px_18px_rgba(16,63,53,0.18)]"
+                            : "border border-[#E3E6E2] bg-white text-[#626A65] shadow-[0_3px_12px_rgba(16,63,53,0.035)]"
+                          }
+                        `}
+                      >
+                        {category.name}
+                      </button>
+                    );
+                  }
+                )}
+
               </div>
 
             </div>
@@ -583,48 +831,125 @@ function MenuPageContent() {
 
             {search.trim() ? (
 
-              <section className="px-5 pb-32 pt-5">
+              <section className="px-5 pb-32 pt-8">
 
-                <div className="mb-5">
+                <div className="mb-6">
 
-                  <h2 className="text-[22px] font-extrabold">
-                    Search Results
-                  </h2>
-
-                  <p className="mt-1 text-xs text-[#7A817D]">
-                    {filteredCategories.reduce(
-                      (total, category) =>
-                        total +
-                        category.items.length,
-                      0
-                    )}{" "}
-                    dishes found
+                  <p
+                    className="
+                      text-[9px]
+                      font-semibold
+                      uppercase
+                      tracking-[0.22em]
+                      text-[#B58A42]
+                    "
+                  >
+                    Search
                   </p>
+
+                  <div className="mt-1.5 flex items-end justify-between">
+
+                    <h2
+                      className="
+                        text-[24px]
+                        font-semibold
+                        tracking-[-0.035em]
+                        text-[#171A19]
+                      "
+                    >
+                      Search Results
+                    </h2>
+
+                    <span
+                      className="
+                        rounded-full
+                        bg-white
+                        px-3
+                        py-1.5
+                        text-[9px]
+                        font-medium
+                        text-[#7A817D]
+                        shadow-[0_3px_10px_rgba(16,63,53,0.04)]
+                      "
+                    >
+                      {filteredCategories.reduce(
+                        (total, category) =>
+                          total +
+                          category.items.length,
+                        0
+                      )}{" "}
+                      dishes
+                    </span>
+
+                  </div>
 
                 </div>
 
                 {filteredCategories.length ===
                   0 ? (
 
-                  <div className="rounded-[22px] bg-white p-10 text-center shadow-sm">
+                  <div
+                    className="
+                      rounded-[28px]
+                      border
+                      border-[#E3E6E2]
+                      bg-white
+                      px-6
+                      py-14
+                      text-center
+                      shadow-[0_8px_28px_rgba(16,63,53,0.045)]
+                    "
+                  >
 
-                    <div className="text-4xl">
-                      🍽️
+                    <div
+                      className="
+                        mx-auto
+                        flex
+                        h-16
+                        w-16
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-[#EEF3EF]
+                        text-[#103F35]
+                      "
+                    >
+                      <Search
+                        size={24}
+                        strokeWidth={1.5}
+                      />
                     </div>
 
-                    <p className="mt-3 font-semibold">
+                    <p
+                      className="
+                        mt-5
+                        text-[16px]
+                        font-semibold
+                        text-[#171A19]
+                      "
+                    >
                       No dishes found
                     </p>
 
-                    <p className="mt-1 text-xs text-[#7A817D]">
-                      Try searching for another dish.
+                    <p
+                      className="
+                        mx-auto
+                        mt-2
+                        max-w-[250px]
+                        text-[11px]
+                        leading-5
+                        text-[#7A817D]
+                      "
+                    >
+                      Try another dish name,
+                      cuisine or ingredient.
                     </p>
 
                   </div>
 
                 ) : (
 
-                  <div className="space-y-3">
+                  <div className="space-y-4">
 
                     {filteredCategories.flatMap(
                       (category) =>
@@ -655,19 +980,62 @@ function MenuPageContent() {
                  ACTIVE CATEGORY
               ================================================= */
 
-              <section className="px-5 pb-32 pt-5">
+              <section className="px-5 pb-32 pt-8">
 
                 {activeItems.length ===
                   0 ? (
 
-                  <div className="rounded-[22px] bg-white p-8 text-center shadow-sm">
+                  <div
+                    className="
+                      rounded-[28px]
+                      border
+                      border-[#E3E6E2]
+                      bg-white
+                      p-12
+                      text-center
+                      shadow-[0_8px_28px_rgba(16,63,53,0.045)]
+                    "
+                  >
 
-                    <div className="text-3xl">
-                      🍽️
+                    <div
+                      className="
+                        mx-auto
+                        flex
+                        h-16
+                        w-16
+                        items-center
+                        justify-center
+                        rounded-full
+                        bg-[#EEF3EF]
+                        text-[#103F35]
+                      "
+                    >
+                      <Utensils
+                        size={24}
+                        strokeWidth={1.5}
+                      />
                     </div>
 
-                    <p className="mt-3 font-semibold">
+                    <p
+                      className="
+                        mt-5
+                        text-[16px]
+                        font-semibold
+                        text-[#171A19]
+                      "
+                    >
                       No items available
+                    </p>
+
+                    <p
+                      className="
+                        mt-2
+                        text-[11px]
+                        text-[#7A817D]
+                      "
+                    >
+                      Please explore another
+                      category.
                     </p>
 
                   </div>
@@ -676,28 +1044,66 @@ function MenuPageContent() {
 
                   <>
 
-                    <div className="mb-5 flex items-end justify-between">
+                    {/* CATEGORY HEADING */}
+
+                    <div
+                      className="
+                        mb-6
+                        flex
+                        items-end
+                        justify-between
+                      "
+                    >
 
                       <div>
 
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-[#B56A16]">
+                        <p
+                          className="
+                            text-[9px]
+                            font-semibold
+                            uppercase
+                            tracking-[0.22em]
+                            text-[#B58A42]
+                          "
+                        >
                           Category
                         </p>
 
-                        <h2 className="mt-1 text-[23px] font-extrabold leading-tight">
+                        <h2
+                          className="
+                            mt-1.5
+                            text-[25px]
+                            font-semibold
+                            leading-tight
+                            tracking-[-0.04em]
+                            text-[#171A19]
+                          "
+                        >
                           {activeCategoryName}
                         </h2>
 
                       </div>
 
-                      <span className="text-xs text-[#7A817D]">
-                        {activeItems.length}{" "}
-                        items
+                      <span
+                        className="
+                          rounded-full
+                          bg-white
+                          px-3.5
+                          py-2
+                          text-[9px]
+                          font-medium
+                          text-[#7A817D]
+                          shadow-[0_4px_12px_rgba(16,63,53,0.045)]
+                        "
+                      >
+                        {activeItems.length} items
                       </span>
 
                     </div>
 
-                    <div className="space-y-3">
+                    {/* FOOD LIST */}
+
+                    <div className="space-y-4">
 
                       {activeItems.map(
                         (item) => (
@@ -745,23 +1151,59 @@ function MenuPageContent() {
   );
 }
 
+/* =========================================================
+   PAGE WRAPPER
+========================================================= */
+
 export default function MenuPage() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-[#F7F8F6]">
-          <div className="mx-auto min-h-screen w-full max-w-[480px] bg-[#F7F8F6] p-5">
-            <div className="h-10 w-32 animate-pulse rounded-lg bg-white" />
-            <div className="mt-5 h-14 animate-pulse rounded-[18px] bg-white" />
-            <div className="mt-5 space-y-3">
-              {[1, 2, 3, 4].map((item) => (
-                <div
-                  key={item}
-                  className="h-[118px] animate-pulse rounded-[22px] bg-white"
-                />
-              ))}
+        <main className="min-h-screen bg-[#EDEFEA]">
+
+          <div
+            className="
+              mx-auto
+              min-h-screen
+              w-full
+              max-w-[480px]
+              bg-[#F7F8F6]
+              p-5
+            "
+          >
+
+            <div className="flex justify-between">
+
+              <div className="h-11 w-11 animate-pulse rounded-full bg-white" />
+
+              <div className="h-8 w-32 animate-pulse rounded-lg bg-white" />
+
+              <div className="h-11 w-11 animate-pulse rounded-full bg-white" />
+
             </div>
+
+            <div className="mt-6 h-[58px] animate-pulse rounded-[20px] bg-white" />
+
+            <div className="mt-6 space-y-4">
+
+              {[1, 2, 3, 4].map(
+                (item) => (
+                  <div
+                    key={item}
+                    className="
+                      h-[160px]
+                      animate-pulse
+                      rounded-[26px]
+                      bg-white
+                    "
+                  />
+                )
+              )}
+
+            </div>
+
           </div>
+
         </main>
       }
     >
@@ -781,96 +1223,380 @@ function MenuItemCard({
   item: MenuItem;
   onAdd: () => void;
 }) {
-  const hasVariants = item.variants.length > 0;
+  const hasVariants =
+    item.variants.length > 0;
 
   return (
-    <article className="group relative overflow-hidden rounded-[24px] bg-white p-3 shadow-[0_6px_24px_rgba(0,0,0,0.055)] ring-1 ring-black/[0.025] transition-all duration-200 active:scale-[0.99]">
-      <div className="flex gap-3.5">
-        {/* IMAGE */}
-        <div className="relative h-[112px] w-[112px] shrink-0 overflow-hidden rounded-[20px] bg-[#EEECE7]">
+    <article
+      className="
+        group
+        relative
+        overflow-hidden
+        rounded-[26px]
+        border
+        border-[#E4E7E3]
+        bg-white
+        p-3.5
+        shadow-[0_8px_28px_rgba(16,63,53,0.055)]
+        transition-all
+        duration-200
+        active:scale-[0.99]
+      "
+    >
+
+      <div className="flex gap-4">
+
+        {/* =================================================
+            IMAGE
+        ================================================= */}
+
+        <div
+          className="
+            relative
+            h-[132px]
+            w-[132px]
+            shrink-0
+            overflow-hidden
+            rounded-[22px]
+            bg-[#EFF1ED]
+          "
+        >
+
           {item.image ? (
+
             <img
               src={item.image}
-              alt={formatMenuItemName(item.name)}
+              alt={formatMenuItemName(
+                item.name
+              )}
               loading="lazy"
-              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.04]"
+              className="
+                h-full
+                w-full
+                object-cover
+                transition-transform
+                duration-500
+                group-hover:scale-[1.04]
+              "
             />
+
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-[#F1F2EE] text-4xl">
-              {item.foodType === "VEG" ? "🥗" : "🍗"}
+
+            <div
+              className="
+                flex
+                h-full
+                w-full
+                items-center
+                justify-center
+                bg-gradient-to-br
+                from-[#F5F6F2]
+                to-[#E7EAE5]
+              "
+            >
+
+              <div
+                className="
+                  flex
+                  h-14
+                  w-14
+                  items-center
+                  justify-center
+                  rounded-full
+                  border
+                  border-[#D6A34A]/30
+                  bg-white/75
+                  text-[#103F35]
+                  shadow-sm
+                "
+              >
+                <Utensils
+                  size={24}
+                  strokeWidth={1.5}
+                />
+              </div>
+
             </div>
+
           )}
 
-          {/* IMAGE GRADIENT */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 bg-gradient-to-t from-black/25 to-transparent" />
+          {/* IMAGE OVERLAY */}
 
-          {/* BESTSELLER */}
-          {item.isBestSeller && (
-            <span className="absolute bottom-2 left-2 rounded-full bg-[#E58A18] px-2.5 py-1 text-[9px] font-extrabold tracking-wide text-white shadow-md">
-              BESTSELLER
-            </span>
-          )}
-        </div>
+          <div
+            className="
+              pointer-events-none
+              absolute
+              inset-0
+              bg-gradient-to-t
+              from-black/25
+              via-transparent
+              to-transparent
+            "
+          />
 
-        {/* DETAILS */}
-        <div className="flex min-w-0 flex-1 flex-col py-0.5">
-          {/* NAME */}
-          <div className="flex items-start gap-2">
-            {/* VEG / NON-VEG */}
+          {/* FOOD TYPE */}
+
+          <div className="absolute left-3 top-3">
+
             <span
-              className={`mt-1 flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-[3px] border-2 ${item.foodType === "VEG"
-                ? "border-green-600"
-                : "border-red-600"
-                }`}
+              className={`
+                flex
+                h-6
+                w-6
+                items-center
+                justify-center
+                rounded-full
+                border
+                bg-white/95
+                shadow-sm
+                ${item.foodType === "VEG"
+                  ? "border-[#4B9B63]"
+                  : "border-[#C95757]"
+                }
+              `}
             >
               <span
-                className={`h-1.5 w-1.5 rounded-full ${item.foodType === "VEG"
-                  ? "bg-green-600"
-                  : "bg-red-600"
-                  }`}
+                className={`
+                  h-2.5
+                  w-2.5
+                  rounded-full
+                  ${item.foodType === "VEG"
+                    ? "bg-[#247A43]"
+                    : "bg-[#B3262E]"
+                  }
+                `}
               />
             </span>
 
-            <h3 className="line-clamp-2 pr-1 text-[16px] font-extrabold leading-[1.25] tracking-[-0.01em] text-[#171A19]">
-              {formatMenuItemName(item.name)}
-            </h3>
           </div>
 
+          {/* BESTSELLER */}
+
+          {item.isBestSeller && (
+
+            <span
+              className="
+                absolute
+                bottom-2.5
+                left-3
+                rounded-full
+                border
+                border-white/20
+                bg-[#103F35]/95
+                px-3
+                py-1.5
+                text-[8px]
+                font-bold
+                uppercase
+                tracking-[0.12em]
+                text-[#D6A34A]
+                shadow-md
+              "
+            >
+              Bestseller
+            </span>
+
+          )}
+
+        </div>
+
+        {/* =================================================
+            DETAILS
+        ================================================= */}
+
+        <div
+          className="
+            flex
+            min-w-0
+            flex-1
+            flex-col
+            py-0.5
+          "
+        >
+
+          {/* NAME */}
+
+          <h3
+            className="
+              line-clamp-2
+              pr-1
+              text-[16px]
+              font-semibold
+              leading-[1.3]
+              tracking-[-0.015em]
+              text-[#171A19]
+            "
+          >
+            {formatMenuItemName(
+              item.name
+            )}
+          </h3>
+
           {/* DESCRIPTION */}
+
           {item.description && (
-            <p className="mt-1.5 line-clamp-2 text-[11px] leading-[1.45] text-[#7A817D]">
+
+            <p
+              className="
+                mt-2
+                line-clamp-2
+                text-[11px]
+                leading-[1.5]
+                text-[#7C837F]
+              "
+            >
               {item.description}
             </p>
+
           )}
 
           {/* BOTTOM */}
-          <div className="mt-auto flex items-end justify-between gap-2 pt-2">
+
+          <div
+            className="
+              mt-auto
+              flex
+              items-end
+              justify-between
+              gap-2
+              pt-4
+            "
+          >
+
+            {/* PRICE */}
+
             <div className="min-w-0">
-              <div className="flex items-baseline gap-1.5">
-                <span className="text-[18px] font-extrabold tracking-tight text-[#171A19]">
+
+              <p
+                className="
+                  text-[8px]
+                  font-medium
+                  uppercase
+                  tracking-[0.13em]
+                  text-[#9A9F9B]
+                "
+              >
+                Starting from
+              </p>
+
+              <div
+                className="
+                  mt-0.5
+                  flex
+                  items-baseline
+                  gap-1.5
+                "
+              >
+
+                <span
+                  className="
+                    text-[20px]
+                    font-bold
+                    tracking-[-0.025em]
+                    text-[#171A19]
+                  "
+                >
                   ₹{item.price}
                 </span>
 
                 {hasVariants && (
-                  <span className="text-[10px] font-medium text-[#8A918D]">
-                    {item.variants.length} options
+
+                  <span
+                    className="
+                      text-[9px]
+                      font-medium
+                      text-[#8B918D]
+                    "
+                  >
+                    {item.variants.length}{" "}
+                    options
                   </span>
+
                 )}
+
               </div>
+
             </div>
 
             {/* ADD BUTTON */}
+
             <button
               type="button"
               onClick={onAdd}
-              className="flex h-9 shrink-0 items-center gap-1 rounded-full bg-[#0F5143] px-4 text-[11px] font-extrabold tracking-wide text-white shadow-[0_5px_14px_rgba(15,81,67,0.18)] transition-all duration-200 hover:bg-[#0B4539] active:scale-95"
+              aria-label={`Add ${formatMenuItemName(item.name)} to cart`}
+              className="
+    group
+    flex
+    h-11
+    shrink-0
+    items-center
+    gap-2
+    rounded-full
+    bg-[#103F35]
+    pl-1.5
+    pr-2.5
+    text-white
+    shadow-[0_7px_20px_rgba(16,63,53,0.18)]
+    transition-all
+    duration-200
+    hover:bg-[#0B342D]
+    hover:shadow-[0_9px_24px_rgba(16,63,53,0.22)]
+    active:scale-[0.96]
+  "
             >
-              ADD
-              <ChevronRight size={14} strokeWidth={2.5} />
+              {/* PLUS */}
+              <span
+                className="
+      flex
+      h-8
+      w-8
+      items-center
+      justify-center
+      rounded-full
+      bg-white
+      text-[#103F35]
+      shadow-[0_2px_8px_rgba(0,0,0,0.12)]
+      transition-transform
+      duration-200
+      group-hover:scale-105
+    "
+              >
+                <Plus
+                  size={17}
+                  strokeWidth={2.4}
+                />
+              </span>
+
+              {/* ADD */}
+              <span
+                className="
+      text-[11px]
+      font-bold
+      tracking-[0.02em]
+    "
+              >
+                Add
+              </span>
+
+              {/* ARROW */}
+              <ChevronRight
+                size={15}
+                strokeWidth={2.2}
+                className="
+      text-white/75
+      transition-transform
+      duration-200
+      group-hover:translate-x-0.5
+    "
+              />
             </button>
+
           </div>
+
         </div>
+
       </div>
+
     </article>
   );
 }
@@ -886,18 +1612,14 @@ function VariantSheet({
   item: MenuItem;
   onClose: () => void;
 }) {
-  const availableVariants =
-    item.variants.filter(
-      (variant) =>
-        variant.isAvailable
-    );
-
-  const [
-    selectedVariant,
-    setSelectedVariant,
-  ] = useState<Variant | null>(
-    availableVariants[0] ?? null
+  const availableVariants = item.variants.filter(
+    (variant) => variant.isAvailable
   );
+
+  const [selectedVariant, setSelectedVariant] =
+    useState<Variant | null>(
+      availableVariants[0] ?? null
+    );
 
   /* =======================================================
      ADD SELECTED VARIANT
@@ -910,22 +1632,13 @@ function VariantSheet({
 
     addToCart({
       cartId: `${item.id}-${selectedVariant.id}`,
-
       menuItemId: item.id,
-
       variantId: selectedVariant.id,
-
       name: item.name,
-
-      variantName:
-        selectedVariant.name,
-
+      variantName: selectedVariant.name,
       price: selectedVariant.price,
-
       quantity: 1,
-
       image: item.image,
-
       foodType: item.foodType,
     });
 
@@ -940,156 +1653,556 @@ function VariantSheet({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/40 backdrop-blur-[2px]"
+      className="
+        fixed
+        inset-0
+        z-[100]
+        flex
+        items-end
+        justify-center
+        bg-black/50
+        backdrop-blur-[5px]
+      "
       onClick={onClose}
     >
+      {/* =====================================================
+          SHEET
+      ===================================================== */}
 
       <div
-        className="w-full max-w-[480px] rounded-t-[30px] bg-white p-5 shadow-2xl"
+        className="
+          relative
+          w-full
+          max-w-[480px]
+          overflow-hidden
+          rounded-t-[32px]
+          border
+          border-white/70
+          bg-[#FAFBF9]
+          shadow-[0_-20px_60px_rgba(0,0,0,0.22)]
+        "
         onClick={(event) =>
           event.stopPropagation()
         }
       >
+        {/* =================================================
+            DRAG HANDLE
+        ================================================= */}
 
-        {/* HANDLE */}
+        <div className="flex justify-center pt-3">
+          <div
+            className="
+              h-1.5
+              w-16
+              rounded-full
+              bg-[#D5D9D6]
+            "
+          />
+        </div>
 
-        <div className="mx-auto mb-5 h-1.5 w-12 rounded-full bg-[#D9DDD9]" />
+        <div
+          className="
+            max-h-[88vh]
+            overflow-y-auto
+            px-5
+            pb-6
+            pt-4
+          "
+        >
+          {/* =================================================
+              HEADER
+          ================================================= */}
 
-        {/* HEADER */}
+          <div className="flex items-start gap-3">
 
-        <div className="flex items-start justify-between gap-4">
-
-          <div className="min-w-0">
-
-            <div className="flex items-start gap-2">
-
+            {/* FOOD TYPE */}
+            <div
+              className={`
+                mt-1
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-[11px]
+                border
+                ${item.foodType === "VEG"
+                  ? "border-[#247A43] bg-[#EEF8F0]"
+                  : "border-[#B3262E] bg-[#FFF1F1]"
+                }
+              `}
+            >
               <span
-                className={`mt-1.5 flex h-3 w-3 shrink-0 items-center justify-center rounded-[2px] border-2 ${item.foodType === "VEG"
-                  ? "border-green-600"
-                  : "border-red-600"
-                  }`}
+                className={`
+                  flex
+                  h-4
+                  w-4
+                  items-center
+                  justify-center
+                  rounded-[4px]
+                  border-2
+                  ${item.foodType === "VEG"
+                    ? "border-[#247A43]"
+                    : "border-[#B3262E]"
+                  }
+                `}
               >
                 <span
-                  className={`h-1.5 w-1.5 rounded-full ${item.foodType === "VEG"
-                    ? "bg-green-600"
-                    : "bg-red-600"
-                    }`}
+                  className={`
+                    h-1.5
+                    w-1.5
+                    rounded-full
+                    ${item.foodType === "VEG"
+                      ? "bg-[#247A43]"
+                      : "bg-[#B3262E]"
+                    }
+                  `}
                 />
               </span>
+            </div>
 
-              <h2 className="text-[20px] font-extrabold leading-tight">
+            {/* TITLE */}
+            <div className="min-w-0 flex-1">
+              <h2
+                className="
+                  text-[20px]
+                  font-bold
+                  leading-[1.2]
+                  tracking-[-0.035em]
+                  text-[#171A19]
+                "
+              >
                 {formatMenuItemName(item.name)}
               </h2>
 
+              <p
+                className="
+                  mt-1.5
+                  text-[10px]
+                  font-semibold
+                  uppercase
+                  tracking-[0.22em]
+                  text-[#8A918D]
+                "
+              >
+                Freshly made & crispy
+              </p>
             </div>
 
-            <p className="mt-2 text-xs text-[#7A817D]">
+            {/* CLOSE */}
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Close"
+              className="
+                flex
+                h-11
+                w-11
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                bg-[#F0F2EF]
+                text-[#303633]
+                transition-all
+                duration-150
+                hover:bg-[#E7EBE7]
+                active:scale-90
+              "
+            >
+              <X
+                size={20}
+                strokeWidth={1.8}
+              />
+            </button>
+          </div>
+
+          {/* =================================================
+              DESCRIPTION
+          ================================================= */}
+
+          {item.description && (
+            <p
+              className="
+                mt-5
+                text-[12px]
+                leading-5
+                text-[#737A76]
+              "
+            >
+              {item.description}
+            </p>
+          )}
+
+          {/* =================================================
+              OPTION TITLE
+          ================================================= */}
+
+          <div className="mt-6">
+            <p
+              className="
+                text-[14px]
+                font-semibold
+                text-[#103F35]
+              "
+            >
               Choose your preferred option
             </p>
 
+            <p
+              className="
+                mt-1
+                text-[10px]
+                text-[#929894]
+              "
+            >
+              Select one option to continue
+            </p>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#F3F4F2]"
-          >
-            <X size={18} />
-          </button>
+          {/* =================================================
+              VARIANTS
+          ================================================= */}
 
-        </div>
+          {availableVariants.length === 0 ? (
+            <div
+              className="
+                mt-4
+                rounded-[20px]
+                border
+                border-[#E3E6E2]
+                bg-white
+                px-5
+                py-8
+                text-center
+              "
+            >
+              <p
+                className="
+                  text-[13px]
+                  font-medium
+                  text-[#7A817D]
+                "
+              >
+                No variants available.
+              </p>
+            </div>
+          ) : (
+            <div className="mt-4 space-y-3">
+              {availableVariants.map(
+                (variant) => {
+                  const selected =
+                    selectedVariant?.id ===
+                    variant.id;
 
-        {/* VARIANTS */}
-
-        {availableVariants.length ===
-          0 ? (
-
-          <div className="mt-6 rounded-2xl bg-[#F7F8F6] p-5 text-center text-sm text-[#7A817D]">
-            No variants available.
-          </div>
-
-        ) : (
-
-          <div className="mt-6 space-y-3">
-
-            {availableVariants.map(
-              (variant) => {
-                const selected =
-                  selectedVariant?.id ===
-                  variant.id;
-
-                return (
-                  <button
-                    key={variant.id}
-                    type="button"
-                    onClick={() =>
-                      setSelectedVariant(
-                        variant
-                      )
-                    }
-                    className={`flex w-full items-center justify-between rounded-[18px] border p-4 text-left transition-all active:scale-[0.99] ${selected
-                      ? "border-[#0F5143] bg-[#EEF6F2]"
-                      : "border-[#E7E9E6] bg-white"
-                      }`}
-                  >
-
-                    <div className="flex items-center gap-3">
-
-                      <div
-                        className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${selected
-                          ? "border-[#0F5143]"
-                          : "border-[#B9BFBB]"
-                          }`}
+                  return (
+                    <button
+                      key={variant.id}
+                      type="button"
+                      onClick={() =>
+                        setSelectedVariant(
+                          variant
+                        )
+                      }
+                      className={`
+                        flex
+                        w-full
+                        items-center
+                        gap-3
+                        rounded-[20px]
+                        border
+                        px-4
+                        py-4
+                        text-left
+                        transition-all
+                        duration-150
+                        active:scale-[0.985]
+                        ${selected
+                          ? "border-[#103F35] bg-[#EDF7F3] shadow-[0_6px_20px_rgba(16,63,53,0.08)]"
+                          : "border-[#E2E6E2] bg-white"
+                        }
+                      `}
+                    >
+                      {/* RADIO */}
+                      <span
+                        className={`
+                          flex
+                          h-7
+                          w-7
+                          shrink-0
+                          items-center
+                          justify-center
+                          rounded-full
+                          border-2
+                          ${selected
+                            ? "border-[#0D6757]"
+                            : "border-[#C5CBC7]"
+                          }
+                        `}
                       >
                         {selected && (
-                          <div className="h-2.5 w-2.5 rounded-full bg-[#0F5143]" />
+                          <span
+                            className="
+                              h-3.5
+                              w-3.5
+                              rounded-full
+                              bg-[#0D6757]
+                            "
+                          />
+                        )}
+                      </span>
+
+                      {/* NAME */}
+                      <div className="min-w-0 flex-1">
+                        <p
+                          className={`
+                            text-[15px]
+                            font-semibold
+                            ${selected
+                              ? "text-[#103F35]"
+                              : "text-[#252A28]"
+                            }
+                          `}
+                        >
+                          {variant.name}
+                        </p>
+
+                        {selected && (
+                          <div
+                            className="
+                              mt-1
+                              flex
+                              items-center
+                              gap-1
+                              text-[9px]
+                              font-medium
+                              text-[#71807A]
+                            "
+                          >
+                            <Check
+                              size={10}
+                              strokeWidth={2.5}
+                            />
+                            Selected option
+                          </div>
                         )}
                       </div>
 
-                      <span className="text-sm font-bold">
-                        {variant.name}
-                      </span>
+                      {/* PRICE */}
+                      <div className="text-right">
+                        <p
+                          className="
+                            text-[17px]
+                            font-bold
+                            tracking-[-0.02em]
+                            text-[#171A19]
+                          "
+                        >
+                          ₹{variant.price}
+                        </p>
 
-                    </div>
+                        {selected && (
+                          <span
+                            className="
+                              mt-1
+                              inline-flex
+                              rounded-full
+                              bg-[#DDEFE8]
+                              px-2
+                              py-0.5
+                              text-[8px]
+                              font-bold
+                              uppercase
+                              tracking-[0.08em]
+                              text-[#0D6757]
+                            "
+                          >
+                            Selected
+                          </span>
+                        )}
+                      </div>
+                    </button>
+                  );
+                }
+              )}
+            </div>
+          )}
 
-                    <span className="text-[16px] font-extrabold">
-                      ₹{variant.price}
-                    </span>
+          {/* =================================================
+              ADD TO CART
+          ================================================= */}
 
-                  </button>
-                );
-              }
-            )}
+          <button
+            type="button"
+            disabled={!selectedVariant}
+            onClick={handleAdd}
+            className="
+              mt-5
+              flex
+              h-[58px]
+              w-full
+              items-center
+              rounded-[18px]
+              bg-[#103F35]
+              px-5
+              text-white
+              shadow-[0_10px_28px_rgba(16,63,53,0.22)]
+              transition-all
+              duration-150
+              hover:bg-[#0B342D]
+              active:scale-[0.985]
+              active:shadow-[0_5px_15px_rgba(16,63,53,0.18)]
+              disabled:cursor-not-allowed
+              disabled:opacity-50
+            "
+          >
+            {/* CART ICON */}
+            <div
+              className="
+                flex
+                h-9
+                w-9
+                shrink-0
+                items-center
+                justify-center
+                rounded-full
+                bg-white/10
+              "
+            >
+              <ShoppingCart
+                size={19}
+                strokeWidth={1.8}
+              />
+            </div>
 
+            {/* TEXT */}
+            <span
+              className="
+                ml-3
+                text-[15px]
+                font-semibold
+              "
+            >
+              Add to Cart
+            </span>
+
+            {/* DIVIDER */}
+            <span
+              className="
+                ml-auto
+                mr-3
+                h-6
+                w-px
+                bg-white/20
+              "
+            />
+
+            {/* PRICE */}
+            <span
+              className="
+                text-[16px]
+                font-bold
+              "
+            >
+              ₹{selectedVariant?.price ?? 0}
+            </span>
+
+            <ChevronRight
+              size={19}
+              className="ml-2 text-white/70"
+              strokeWidth={2}
+            />
+          </button>
+
+          {/* =================================================
+              TRUST CHIPS
+          ================================================= */}
+
+          <div
+            className="
+              mt-4
+              flex
+              gap-2
+              overflow-x-auto
+              pb-1
+              [scrollbar-width:none]
+              [&::-webkit-scrollbar]:hidden
+            "
+          >
+            <div
+              className="
+                flex
+                shrink-0
+                items-center
+                gap-1.5
+                rounded-full
+                border
+                border-[#E5E9E5]
+                bg-white
+                px-3
+                py-2
+                text-[9px]
+                font-medium
+                text-[#59615C]
+              "
+            >
+              <span className="text-[#0D6757]">
+                ✓
+              </span>
+              Freshly Made
+            </div>
+
+            <div
+              className="
+                flex
+                shrink-0
+                items-center
+                gap-1.5
+                rounded-full
+                border
+                border-[#E5E9E5]
+                bg-white
+                px-3
+                py-2
+                text-[9px]
+                font-medium
+                text-[#59615C]
+              "
+            >
+              <span className="text-[#0D6757]">
+                ✓
+              </span>
+              Hygienically Prepared
+            </div>
+
+            <div
+              className="
+                flex
+                shrink-0
+                items-center
+                gap-1.5
+                rounded-full
+                border
+                border-[#E5E9E5]
+                bg-white
+                px-3
+                py-2
+                text-[9px]
+                font-medium
+                text-[#59615C]
+              "
+            >
+              <span className="text-[#0D6757]">
+                ♥
+              </span>
+              Loved by Many
+            </div>
           </div>
 
-        )}
-
-        {/* ADD TO CART */}
-
-        <button
-          type="button"
-          disabled={!selectedVariant}
-          onClick={handleAdd}
-          className="mt-6 flex w-full items-center justify-between rounded-full bg-[#0F5143] px-6 py-4 text-white transition-all active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-50"
-        >
-
-          <span className="font-bold">
-            Add to Cart
-          </span>
-
-          <span className="font-extrabold">
-            ₹
-            {selectedVariant?.price ??
-              0}
-          </span>
-
-        </button>
-
-        <div className="h-2" />
-
+          <div className="h-1" />
+        </div>
       </div>
-
     </div>
   );
 }

@@ -1,3 +1,7 @@
+"use client";
+
+import { useState } from "react";
+
 import Header from "@/components/home/Header";
 import SearchBar from "@/components/home/SearchBar";
 import HeroBanner from "@/components/home/HeroBanner";
@@ -8,7 +12,11 @@ import MenuPreview from "@/components/home/MenuPreview";
 import FloatingCart from "@/components/home/FloatingCart";
 import BottomNavigation from "@/components/layout/BottomNavigation";
 
+type FoodType = "ALL" | "VEG" | "NON_VEG";
+
 export default function HomePage() {
+  const [foodType, setFoodType] = useState<FoodType>("ALL");
+
   return (
     <main className="min-h-screen w-full bg-[#F7F8F6] text-[#171A19]">
       <div className="mx-auto min-h-screen w-full overflow-hidden bg-[#F7F8F6] md:max-w-[480px]">
@@ -20,11 +28,14 @@ export default function HomePage() {
 
         <HeroBanner />
 
-        <FoodTypeToggle />
+        <FoodTypeToggle
+          foodType={foodType}
+          onFoodTypeChange={setFoodType}
+        />
 
         <CategorySlider />
 
-        <BestSellerSection />
+        <BestSellerSection foodType={foodType} />
 
         <MenuPreview />
 
