@@ -15,6 +15,7 @@ import {
   Plus,
   Search,
   ShoppingCart,
+  MessageSquareText,
   Utensils,
   X,
 } from "lucide-react";
@@ -67,11 +68,147 @@ function normalizeSearchText(value: string) {
     .trim();
 }
 
+const MENU_NAME_WORDS = [
+  "CHICKEN", "PANEER", "MUTTON", "PRAWNS", "PRAWN", "SEAFOOD",
+  "TIKKA", "TIKKA", "MASALA", "BUTTER", "DUM", "HYDERABADI",
+  "BIRYANI", "GARLIC", "CHEESE", "BREAD", "TANDOORI", "ROTI",
+  "NAAN", "FRIED", "RICE", "NOODLES", "MANCHURIAN", "CHINESE",
+  "THAI", "GREEN", "RED", "CURRY", "CHAAS", "LASSI", "COFFEE",
+  "COLD", "ICE", "CREAM", "GULAB", "JAMUN", "SANDWICH", "PIZZA",
+  "PASTA", "SOUP", "VEG", "VEGETABLE", "CHILLI", "CHILI", "65",
+  "75", "65", "SWEET", "CORN", "MUSHROOM", "BABY", "CORN",
+  "DRUM", "STICKS", "DRUMSTICKS", "KEBAB", "KABAB", "STARTER",
+  "STARTERS", "FRIES", "FRESH", "LIME", "WATER", "SODA", "MILK",
+  "SHAKE", "SHAKES", "SMOOTHIE", "SMOOTHIES", "BROWNIE", "CHOCOLATE",
+  "HOT", "DEEP", "FRIED", "CLUB", "WITH", "ICECREAM", "ROLL", "ROLLS",
+  "MIX", "PLAIN", "BUTTER", "FULL", "HALF", "FAMILY", "SPECIAL",
+  "COMBINATION", "BEST", "WOK", "DAL", "RAITA", "THALI", "SIZZLER",
+  "SIZZLERS", "VEG", "NON", "SEA", "FOOD", "ASIAN", "QUICK", "BITES",
+  "MINI", "DESSERT", "DESSERTS", "BEVERAGE", "BEVERAGES", "SANDWICHES",
+].filter((word, index, arr) => arr.indexOf(word) === index).sort((a, b) => b.length - a.length);
+
 function formatMenuItemName(name: string) {
-  return name
+  const knownWords = [
+    "CHICKEN",
+    "PANEER",
+    "MUTTON",
+    "PRAWNS",
+    "SEAFOOD",
+    "TIKKA",
+    "MASALA",
+    "BUTTER",
+    "DUM",
+    "HYDERABADI",
+    "BIRYANI",
+    "GARLIC",
+    "CHEESE",
+    "BREAD",
+    "TANDOORI",
+    "ROTI",
+    "NAAN",
+    "FRIED",
+    "RICE",
+    "NOODLES",
+    "MANCHURIAN",
+    "CHINESE",
+    "THAI",
+    "GREEN",
+    "CURRY",
+    "CHAAS",
+    "LASSI",
+    "COFFEE",
+    "COLD",
+    "ICE",
+    "CREAM",
+    "GULAB",
+    "JAMUN",
+    "SANDWICH",
+    "PIZZA",
+    "PASTA",
+    "SHIRLEY",
+    "TEMPLE",
+    "CUCUMBER",
+    "DELIGHT",
+    "VIRGIN",
+    "MOJITO",
+    "GUAVA",
+    "SPICY",
+    "MANGO",
+    "STRAWBERRY",
+    "PINEAPPLE",
+    "ORANGE",
+    "LEMON",
+    "LIME",
+    "WATERMELON",
+    "MINT",
+    "FRESH",
+    "FRUIT",
+    "SALAD",
+    "SOUP",
+    "VEG",
+    "VEGETABLE",
+    "NONVEG",
+    "NON",
+    "VEG",
+    "STARTER",
+    "STARTERS",
+    "SPECIAL",
+    "DELIGHT",
+    "PLAIN",
+    "BUTTER",
+    "HALF",
+    "FULL",
+    "FAMILY",
+  ];
+
+  let formatted = name
+    .trim()
     .replace(/([a-zA-Z])(\d+)/g, "$1 $2")
     .replace(/(\d+)([a-zA-Z])/g, "$1 $2")
+    .replace(/([a-z])([A-Z])/g, "$1 $2");
+
+  // Handle concatenated lowercase / uppercase words
+  const sortedWords = [...new Set(knownWords)]
+    .sort((a, b) => b.length - a.length);
+
+  for (const word of sortedWords) {
+    const regex = new RegExp(`(${word})`, "gi");
+    formatted = formatted.replace(regex, " $1 ");
+  }
+
+  formatted = formatted
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return formatted
+    .split(" ")
+    .map((word) => {
+      if (/^\d+$/.test(word)) return word;
+
+      return word.charAt(0).toUpperCase() +
+        word.slice(1).toLowerCase();
+    })
+    .join(" ");
+}
+
+function formatCategoryName(name: string) {
+  return name
+    .trim()
     .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replace(/[-_]+/g, " ")
+    .replace(/\s+/g, " ")
+    .replace(/\bveg\b/gi, "Veg")
+    .replace(/\bnon\s*veg\b/gi, "Non-Veg")
+    .replace(/\bnonveg\b/gi, "Non-Veg")
+    .replace(/\bthai\b/gi, "Thai")
+    .replace(/\basian\b/gi, "Asian")
+    .replace(/\bquick\b/gi, "Quick")
+    .replace(/\bappetizer\b/gi, "Appetizer")
+    .replace(/\bmain\b/gi, "Main")
+    .replace(/\bcourse\b/gi, "Course")
+    .replace(/\bbiryani\b/gi, "Biryani")
+    .replace(/\bdesserts?\b/gi, "Desserts")
+    .replace(/\bbeverages?\b/gi, "Beverages")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -424,28 +561,9 @@ function MenuPageContent() {
      ADD ITEM
   ======================================================= */
 
-  const handleAddItem = (
-    item: MenuItem
-  ) => {
-    if (item.variants.length > 0) {
-      setSelectedItem(item);
-      return;
-    }
-
-    addToCart({
-      cartId: item.id,
-      menuItemId: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      image: item.image,
-      foodType: item.foodType,
-    });
-
-    console.log(
-      "ADDED TO CART:",
-      item.name
-    );
+  const handleAddItem = (item: MenuItem) => {
+    // Always open the sheet so every item can receive a special note.
+    setSelectedItem(item);
   };
 
   /* =======================================================
@@ -758,71 +876,62 @@ function MenuPageContent() {
                 CATEGORY BAR
             ================================================= */}
 
-            <div
-              className="
-                sticky
-                top-0
-                z-30
-                border-b
-                border-[#E2E5E1]
-                bg-[#F7F8F6]/95
-                py-4
-                backdrop-blur-md
-              "
-            >
-
+            <div className="relative">
               <div
                 className="
-                  flex
-                  gap-2.5
-                  overflow-x-auto
-                  px-5
-                  [scrollbar-width:none]
-                  [&::-webkit-scrollbar]:hidden
-                "
+      flex
+      gap-3
+      overflow-x-auto
+      px-5
+      py-3
+      scroll-smooth
+      snap-x
+      snap-mandatory
+      overscroll-x-contain
+      [-ms-overflow-style:none]
+      [scrollbar-width:none]
+      [&::-webkit-scrollbar]:hidden
+    "
               >
+                {categories.map((category) => {
+                  const isActive = category.id === activeCategory;
 
-                {categories.map(
-                  (category) => {
-                    const active =
-                      category.id ===
-                      activeCategory;
-
-                    return (
-                      <button
-                        key={category.id}
-                        type="button"
-                        onClick={() => {
-                          setActiveCategory(
-                            category.id
-                          );
-                          setSearch("");
-                        }}
-                        className={`
-                          shrink-0
-                          whitespace-nowrap
-                          rounded-full
-                          px-5
-                          py-3
-                          text-[11px]
-                          font-semibold
-                          transition-all
-                          duration-200
-                          active:scale-95
-                          ${active
-                            ? "bg-[#103F35] text-white shadow-[0_6px_18px_rgba(16,63,53,0.18)]"
-                            : "border border-[#E3E6E2] bg-white text-[#626A65] shadow-[0_3px_12px_rgba(16,63,53,0.035)]"
-                          }
-                        `}
-                      >
-                        {category.name}
-                      </button>
-                    );
-                  }
-                )}
-
+                  return (
+                    <button
+                      key={category.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveCategory(category.id);
+                        setSearch("");
+                      }}
+                      className={`
+            shrink-0
+            snap-start
+            whitespace-nowrap
+            rounded-full
+            border
+            px-5
+            py-3
+            text-[13px]
+            font-semibold
+            transition-all
+            duration-200
+            ease-out
+            active:scale-[0.97]
+            ${isActive
+                          ? "border-[#103F35] bg-[#103F35] text-white shadow-[0_6px_18px_rgba(16,63,53,0.16)]"
+                          : "border-black/[0.08] bg-white text-[#626965] shadow-[0_2px_8px_rgba(0,0,0,0.04)] hover:border-[#103F35]/20 hover:text-[#103F35]"
+                        }
+          `}
+                    >
+                      {formatCategoryName(category.name)}
+                    </button>
+                  );
+                })}
               </div>
 
+              {/* Right fade */}
+              <div className="pointer-events-none absolute right-0 top-0 h-full w-8 bg-gradient-to-l from-[#F7F8F6] to-transparent" />
             </div>
 
             {/* =================================================
@@ -1133,6 +1242,55 @@ function MenuPageContent() {
         )}
 
       </div>
+
+      {cartCount > 0 && (
+        <Link
+          href="/cart"
+          aria-label="View cart"
+          className="
+            fixed
+            bottom-5
+            left-1/2
+            z-[90]
+            flex
+            h-[58px]
+            w-[calc(100%-32px)]
+            max-w-[448px]
+            -translate-x-1/2
+            items-center
+            justify-between
+            rounded-full
+            bg-[#103F35]
+            pl-5
+            pr-2
+            text-white
+            shadow-[0_14px_40px_rgba(16,63,53,0.28)]
+            ring-1
+            ring-white/10
+            transition-all
+            duration-200
+            active:scale-[0.98]
+          "
+        >
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
+              <ShoppingCart size={19} strokeWidth={2} color="white" />
+            </div>
+            <div className="text-left">
+              <p className="text-[13px] font-semibold leading-none text-white">
+                View Cart
+              </p>
+              <p className="mt-1 text-[10px] text-white/60">
+                {cartCount} {cartCount === 1 ? "item" : "items"}
+              </p>
+            </div>
+          </div>
+          <div className="flex h-10 items-center gap-1 rounded-full bg-white px-4 text-[12px] font-bold text-[#103F35]">
+            View Cart
+            <ChevronRight size={15} />
+          </div>
+        </Link>
+      )}
 
       {/* =====================================================
           VARIANT SHEET
@@ -1617,590 +1775,250 @@ function VariantSheet({
   );
 
   const [selectedVariant, setSelectedVariant] =
-    useState<Variant | null>(
-      availableVariants[0] ?? null
-    );
+    useState<Variant | null>(availableVariants[0] ?? null);
+  const [addNote, setAddNote] = useState(false);
+  const [note, setNote] = useState("");
 
-  /* =======================================================
-     ADD SELECTED VARIANT
-  ======================================================= */
+  const formattedName = formatMenuItemName(item.name);
+  const trimmedNote = note.trim();
 
   const handleAdd = () => {
-    if (!selectedVariant) {
+    if (availableVariants.length > 0 && !selectedVariant) {
       return;
     }
 
-    addToCart({
-      cartId: `${item.id}-${selectedVariant.id}`,
+    const price = selectedVariant?.price ?? item.price;
+    const cartIdBase = selectedVariant
+      ? `${item.id}-${selectedVariant.id}`
+      : item.id;
+
+    // Keep the note in the cart item. Using a variable (instead of an
+    // inline object literal) keeps this compatible with the existing cart
+    // helper while preserving the additional note at runtime.
+    const cartItem = {
+      cartId: trimmedNote
+        ? `${cartIdBase}-note-${encodeURIComponent(trimmedNote)}`
+        : cartIdBase,
       menuItemId: item.id,
-      variantId: selectedVariant.id,
+      ...(selectedVariant
+        ? {
+          variantId: selectedVariant.id,
+          variantName: selectedVariant.name,
+        }
+        : {}),
       name: item.name,
-      variantName: selectedVariant.name,
-      price: selectedVariant.price,
+      price,
       quantity: 1,
       image: item.image,
       foodType: item.foodType,
-    });
+      note: trimmedNote || undefined,
+    };
 
-    console.log(
-      "ADDED VARIANT TO CART:",
-      item.name,
-      selectedVariant.name
-    );
-
+    addToCart(cartItem);
     onClose();
   };
 
   return (
     <div
-      className="
-        fixed
-        inset-0
-        z-[100]
-        flex
-        items-end
-        justify-center
-        bg-black/50
-        backdrop-blur-[5px]
-      "
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/50 backdrop-blur-[4px]"
       onClick={onClose}
     >
-      {/* =====================================================
-          SHEET
-      ===================================================== */}
-
       <div
-        className="
-          relative
-          w-full
-          max-w-[480px]
-          overflow-hidden
-          rounded-t-[32px]
-          border
-          border-white/70
-          bg-[#FAFBF9]
-          shadow-[0_-20px_60px_rgba(0,0,0,0.22)]
-        "
-        onClick={(event) =>
-          event.stopPropagation()
-        }
+        className="relative w-full max-w-[480px] overflow-hidden rounded-t-[30px] border border-white/70 bg-[#FAFBF9] shadow-[0_-20px_60px_rgba(0,0,0,0.22)]"
+        onClick={(event) => event.stopPropagation()}
       >
-        {/* =================================================
-            DRAG HANDLE
-        ================================================= */}
-
         <div className="flex justify-center pt-3">
-          <div
-            className="
-              h-1.5
-              w-16
-              rounded-full
-              bg-[#D5D9D6]
-            "
-          />
+          <div className="h-1.5 w-14 rounded-full bg-[#D5D9D6]" />
         </div>
 
-        <div
-          className="
-            max-h-[88vh]
-            overflow-y-auto
-            px-5
-            pb-6
-            pt-4
-          "
-        >
-          {/* =================================================
-              HEADER
-          ================================================= */}
-
+        <div className="max-h-[88vh] overflow-y-auto overscroll-contain px-5 pb-6 pt-4">
+          {/* HEADER */}
           <div className="flex items-start gap-3">
-
-            {/* FOOD TYPE */}
             <div
-              className={`
-                mt-1
-                flex
-                h-9
-                w-9
-                shrink-0
-                items-center
-                justify-center
-                rounded-[11px]
-                border
-                ${item.foodType === "VEG"
-                  ? "border-[#247A43] bg-[#EEF8F0]"
-                  : "border-[#B3262E] bg-[#FFF1F1]"
-                }
-              `}
+              className={`mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-[11px] border ${item.foodType === "VEG"
+                ? "border-[#247A43] bg-[#EEF8F0]"
+                : "border-[#B3262E] bg-[#FFF1F1]"
+                }`}
             >
               <span
-                className={`
-                  flex
-                  h-4
-                  w-4
-                  items-center
-                  justify-center
-                  rounded-[4px]
-                  border-2
-                  ${item.foodType === "VEG"
-                    ? "border-[#247A43]"
-                    : "border-[#B3262E]"
-                  }
-                `}
+                className={`flex h-4 w-4 items-center justify-center rounded-[4px] border-2 ${item.foodType === "VEG"
+                  ? "border-[#247A43]"
+                  : "border-[#B3262E]"
+                  }`}
               >
                 <span
-                  className={`
-                    h-1.5
-                    w-1.5
-                    rounded-full
-                    ${item.foodType === "VEG"
-                      ? "bg-[#247A43]"
-                      : "bg-[#B3262E]"
-                    }
-                  `}
+                  className={`h-1.5 w-1.5 rounded-full ${item.foodType === "VEG"
+                    ? "bg-[#247A43]"
+                    : "bg-[#B3262E]"
+                    }`}
                 />
               </span>
             </div>
 
-            {/* TITLE */}
             <div className="min-w-0 flex-1">
-              <h2
-                className="
-                  text-[20px]
-                  font-bold
-                  leading-[1.2]
-                  tracking-[-0.035em]
-                  text-[#171A19]
-                "
-              >
-                {formatMenuItemName(item.name)}
+              <h2 className="text-[20px] font-bold leading-[1.2] tracking-[-0.035em] text-[#171A19]">
+                {formattedName}
               </h2>
 
-              <p
-                className="
-                  mt-1.5
-                  text-[10px]
-                  font-semibold
-                  uppercase
-                  tracking-[0.22em]
-                  text-[#8A918D]
-                "
-              >
-                Freshly made & crispy
-              </p>
+              {item.description && (
+                <p className="mt-1.5 text-[11px] leading-5 text-[#7A817D]">
+                  {item.description}
+                </p>
+              )}
             </div>
 
-            {/* CLOSE */}
             <button
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="
-                flex
-                h-11
-                w-11
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                bg-[#F0F2EF]
-                text-[#303633]
-                transition-all
-                duration-150
-                hover:bg-[#E7EBE7]
-                active:scale-90
-              "
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#F0F2EF] text-[#303633] transition-all active:scale-90"
             >
-              <X
-                size={20}
-                strokeWidth={1.8}
-              />
+              <X size={19} strokeWidth={1.8} />
             </button>
           </div>
 
-          {/* =================================================
-              DESCRIPTION
-          ================================================= */}
+          {/* VARIANTS */}
+          {availableVariants.length > 0 && (
+            <div className="mt-6">
+              <div>
+                <p className="text-[14px] font-semibold text-[#103F35]">
+                  Choose your preferred option
+                </p>
+                <p className="mt-1 text-[10px] text-[#929894]">
+                  Select one option to continue
+                </p>
+              </div>
 
-          {item.description && (
-            <p
-              className="
-                mt-5
-                text-[12px]
-                leading-5
-                text-[#737A76]
-              "
-            >
-              {item.description}
-            </p>
-          )}
-
-          {/* =================================================
-              OPTION TITLE
-          ================================================= */}
-
-          <div className="mt-6">
-            <p
-              className="
-                text-[14px]
-                font-semibold
-                text-[#103F35]
-              "
-            >
-              Choose your preferred option
-            </p>
-
-            <p
-              className="
-                mt-1
-                text-[10px]
-                text-[#929894]
-              "
-            >
-              Select one option to continue
-            </p>
-          </div>
-
-          {/* =================================================
-              VARIANTS
-          ================================================= */}
-
-          {availableVariants.length === 0 ? (
-            <div
-              className="
-                mt-4
-                rounded-[20px]
-                border
-                border-[#E3E6E2]
-                bg-white
-                px-5
-                py-8
-                text-center
-              "
-            >
-              <p
-                className="
-                  text-[13px]
-                  font-medium
-                  text-[#7A817D]
-                "
-              >
-                No variants available.
-              </p>
-            </div>
-          ) : (
-            <div className="mt-4 space-y-3">
-              {availableVariants.map(
-                (variant) => {
-                  const selected =
-                    selectedVariant?.id ===
-                    variant.id;
+              <div className="mt-4 space-y-3">
+                {availableVariants.map((variant) => {
+                  const selected = selectedVariant?.id === variant.id;
 
                   return (
                     <button
                       key={variant.id}
                       type="button"
-                      onClick={() =>
-                        setSelectedVariant(
-                          variant
-                        )
-                      }
-                      className={`
-                        flex
-                        w-full
-                        items-center
-                        gap-3
-                        rounded-[20px]
-                        border
-                        px-4
-                        py-4
-                        text-left
-                        transition-all
-                        duration-150
-                        active:scale-[0.985]
-                        ${selected
-                          ? "border-[#103F35] bg-[#EDF7F3] shadow-[0_6px_20px_rgba(16,63,53,0.08)]"
-                          : "border-[#E2E6E2] bg-white"
-                        }
-                      `}
+                      onClick={() => setSelectedVariant(variant)}
+                      className={`flex min-h-[68px] w-full items-center gap-3 rounded-[18px] border px-4 py-3 text-left transition-all active:scale-[0.985] ${selected
+                        ? "border-[#103F35] bg-[#EDF7F3] shadow-[0_6px_20px_rgba(16,63,53,0.08)]"
+                        : "border-[#E2E6E2] bg-white"
+                        }`}
                     >
-                      {/* RADIO */}
                       <span
-                        className={`
-                          flex
-                          h-7
-                          w-7
-                          shrink-0
-                          items-center
-                          justify-center
-                          rounded-full
-                          border-2
-                          ${selected
-                            ? "border-[#0D6757]"
-                            : "border-[#C5CBC7]"
-                          }
-                        `}
+                        className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 ${selected
+                          ? "border-[#0D6757]"
+                          : "border-[#C5CBC7]"
+                          }`}
                       >
                         {selected && (
-                          <span
-                            className="
-                              h-3.5
-                              w-3.5
-                              rounded-full
-                              bg-[#0D6757]
-                            "
-                          />
+                          <span className="h-3.5 w-3.5 rounded-full bg-[#0D6757]" />
                         )}
                       </span>
 
-                      {/* NAME */}
-                      <div className="min-w-0 flex-1">
-                        <p
-                          className={`
-                            text-[15px]
-                            font-semibold
-                            ${selected
-                              ? "text-[#103F35]"
-                              : "text-[#252A28]"
-                            }
-                          `}
-                        >
-                          {variant.name}
-                        </p>
+                      <span className="min-w-0 flex-1 break-words pr-2 text-[14px] font-semibold leading-5 text-[#252A28]">
+                        {variant.name}
+                      </span>
 
-                        {selected && (
-                          <div
-                            className="
-                              mt-1
-                              flex
-                              items-center
-                              gap-1
-                              text-[9px]
-                              font-medium
-                              text-[#71807A]
-                            "
-                          >
-                            <Check
-                              size={10}
-                              strokeWidth={2.5}
-                            />
-                            Selected option
-                          </div>
-                        )}
-                      </div>
-
-                      {/* PRICE */}
-                      <div className="text-right">
-                        <p
-                          className="
-                            text-[17px]
-                            font-bold
-                            tracking-[-0.02em]
-                            text-[#171A19]
-                          "
-                        >
-                          ₹{variant.price}
-                        </p>
-
-                        {selected && (
-                          <span
-                            className="
-                              mt-1
-                              inline-flex
-                              rounded-full
-                              bg-[#DDEFE8]
-                              px-2
-                              py-0.5
-                              text-[8px]
-                              font-bold
-                              uppercase
-                              tracking-[0.08em]
-                              text-[#0D6757]
-                            "
-                          >
-                            Selected
-                          </span>
-                        )}
-                      </div>
+                      <span className="shrink-0 text-right text-[16px] font-bold tracking-[-0.02em] text-[#171A19]">
+                        ₹{variant.price}
+                      </span>
                     </button>
                   );
-                }
-              )}
+                })}
+              </div>
             </div>
           )}
 
-          {/* =================================================
-              ADD TO CART
-          ================================================= */}
+          {/* NOTE TO KITCHEN */}
+          <div className={availableVariants.length > 0 ? "mt-5" : "mt-6"}>
+            <label className="flex cursor-pointer items-center gap-3 rounded-[18px] border border-[#E2E6E2] bg-white px-4 py-3.5">
+              <input
+                type="checkbox"
+                checked={addNote}
+                onChange={(event) => {
+                  setAddNote(event.target.checked);
+                  if (!event.target.checked) setNote("");
+                }}
+                className="sr-only"
+              />
 
+              <span
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-[6px] border-2 transition-colors ${addNote
+                  ? "border-[#103F35] bg-[#103F35] text-white"
+                  : "border-[#BFC6C1] bg-white"
+                  }`}
+              >
+                {addNote && <Check size={13} strokeWidth={3} />}
+              </span>
+
+              <span className="min-w-0 flex-1">
+                <span className="flex items-center gap-2 text-[13px] font-semibold text-[#252A28]">
+                  <MessageSquareText size={16} className="text-[#103F35]" />
+                  Add Note
+                </span>
+                <span className="mt-0.5 block text-[10px] leading-4 text-[#8A918D]">
+                  Special preparation instructions for this item
+                </span>
+              </span>
+            </label>
+
+            {addNote && (
+              <div className="mt-3 overflow-hidden rounded-[18px] border border-[#DCE3DE] bg-white focus-within:border-[#103F35] focus-within:ring-2 focus-within:ring-[#103F35]/10">
+                <textarea
+                  value={note}
+                  onChange={(event) => setNote(event.target.value.slice(0, 180))}
+                  placeholder="e.g. Less garlic, cut into pieces, more roasted..."
+                  rows={3}
+                  maxLength={180}
+                  autoFocus
+                  className="w-full resize-none bg-transparent px-4 py-3 text-[13px] leading-5 text-[#252A28] outline-none placeholder:text-[#A0A6A2]"
+                />
+                <div className="flex items-center justify-between border-t border-[#EEF0ED] px-4 py-2">
+                  <span className="text-[9px] text-[#919893]">
+                    Kitchen note
+                  </span>
+                  <span className="text-[9px] font-medium text-[#919893]">
+                    {note.length}/180
+                  </span>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ADD TO CART */}
           <button
             type="button"
-            disabled={!selectedVariant}
+            disabled={availableVariants.length > 0 && !selectedVariant}
             onClick={handleAdd}
-            className="
-              mt-5
-              flex
-              h-[58px]
-              w-full
-              items-center
-              rounded-[18px]
-              bg-[#103F35]
-              px-5
-              text-white
-              shadow-[0_10px_28px_rgba(16,63,53,0.22)]
-              transition-all
-              duration-150
-              hover:bg-[#0B342D]
-              active:scale-[0.985]
-              active:shadow-[0_5px_15px_rgba(16,63,53,0.18)]
-              disabled:cursor-not-allowed
-              disabled:opacity-50
-            "
+            className="mt-5 flex h-[58px] w-full items-center rounded-[18px] bg-[#103F35] px-5 text-white shadow-[0_10px_28px_rgba(16,63,53,0.22)] transition-all active:scale-[0.985] disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {/* CART ICON */}
-            <div
-              className="
-                flex
-                h-9
-                w-9
-                shrink-0
-                items-center
-                justify-center
-                rounded-full
-                bg-white/10
-              "
-            >
-              <ShoppingCart
-                size={19}
-                strokeWidth={1.8}
-              />
+            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/10">
+              <ShoppingCart size={19} strokeWidth={1.8} />
             </div>
 
-            {/* TEXT */}
-            <span
-              className="
-                ml-3
-                text-[15px]
-                font-semibold
-              "
-            >
+            <span className="ml-3 text-[15px] font-semibold">
               Add to Cart
             </span>
 
-            {/* DIVIDER */}
-            <span
-              className="
-                ml-auto
-                mr-3
-                h-6
-                w-px
-                bg-white/20
-              "
-            />
+            <span className="ml-auto mr-3 h-6 w-px bg-white/20" />
 
-            {/* PRICE */}
-            <span
-              className="
-                text-[16px]
-                font-bold
-              "
-            >
-              ₹{selectedVariant?.price ?? 0}
+            <span className="text-[16px] font-bold">
+              ₹{selectedVariant?.price ?? item.price}
             </span>
 
-            <ChevronRight
-              size={19}
-              className="ml-2 text-white/70"
-              strokeWidth={2}
-            />
+            <ChevronRight size={19} className="ml-2 text-white/70" strokeWidth={2} />
           </button>
 
-          {/* =================================================
-              TRUST CHIPS
-          ================================================= */}
-
-          <div
-            className="
-              mt-4
-              flex
-              gap-2
-              overflow-x-auto
-              pb-1
-              [scrollbar-width:none]
-              [&::-webkit-scrollbar]:hidden
-            "
-          >
-            <div
-              className="
-                flex
-                shrink-0
-                items-center
-                gap-1.5
-                rounded-full
-                border
-                border-[#E5E9E5]
-                bg-white
-                px-3
-                py-2
-                text-[9px]
-                font-medium
-                text-[#59615C]
-              "
-            >
-              <span className="text-[#0D6757]">
-                ✓
-              </span>
+          {/* TRUST CHIPS */}
+          <div className="mt-4 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-[#E5E9E5] bg-white px-3 py-2 text-[9px] font-medium text-[#59615C]">
+              <span className="text-[#0D6757]">✓</span>
               Freshly Made
             </div>
-
-            <div
-              className="
-                flex
-                shrink-0
-                items-center
-                gap-1.5
-                rounded-full
-                border
-                border-[#E5E9E5]
-                bg-white
-                px-3
-                py-2
-                text-[9px]
-                font-medium
-                text-[#59615C]
-              "
-            >
-              <span className="text-[#0D6757]">
-                ✓
-              </span>
+            <div className="flex shrink-0 items-center gap-1.5 rounded-full border border-[#E5E9E5] bg-white px-3 py-2 text-[9px] font-medium text-[#59615C]">
+              <span className="text-[#0D6757]">✓</span>
               Hygienically Prepared
             </div>
-
-            <div
-              className="
-                flex
-                shrink-0
-                items-center
-                gap-1.5
-                rounded-full
-                border
-                border-[#E5E9E5]
-                bg-white
-                px-3
-                py-2
-                text-[9px]
-                font-medium
-                text-[#59615C]
-              "
-            >
-              <span className="text-[#0D6757]">
-                ♥
-              </span>
-              Loved by Many
-            </div>
           </div>
-
-          <div className="h-1" />
         </div>
       </div>
     </div>
