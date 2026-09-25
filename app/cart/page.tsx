@@ -7,11 +7,14 @@ import {
   ArrowRight,
   Check,
   ChevronDown,
+  ChevronRight,
   Minus,
   Plus,
   ShoppingBag,
   Trash2,
   X,
+  Pencil,
+  FileText,
 } from "lucide-react";
 
 import {
@@ -21,6 +24,10 @@ import {
   addToCart,
   type CartItem,
 } from "@/lib/cart";
+
+type CartItemWithNote = CartItem & {
+  note?: string;
+};
 
 type Suggestion = {
   id: string;
@@ -36,6 +43,8 @@ type Suggestion = {
   }[];
 };
 
+const NOTE_STORAGE_KEY = "flutes-cart-item-notes";
+
 function formatPrice(value: number) {
   return `₹${Math.round(value).toLocaleString("en-IN")}`;
 }
@@ -49,21 +58,55 @@ function formatName(name: string) {
     .trim();
 }
 
+function readStoredNotes(): Record<string, string> {
+  try {
+    const raw = localStorage.getItem(NOTE_STORAGE_KEY);
+    if (!raw) return {};
+
+    const parsed = JSON.parse(raw);
+
+    if (!parsed || typeof parsed !== "object") {
+      return {};
+    }
+
+    return parsed as Record<string, string>;
+  } catch {
+    return {};
+  }
+}
+
+function writeStoredNotes(notes: Record<string, string>) {
+  try {
+    localStorage.setItem(NOTE_STORAGE_KEY, JSON.stringify(notes));
+  } catch {
+    // Keep cart usable even if localStorage is unavailable.
+  }
+}
+
 export default function CartPage() {
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItemWithNote[]>([]);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loadingSuggestions, setLoadingSuggestions] = useState(true);
 
   const [selectedSuggestion, setSelectedSuggestion] =
     useState<Suggestion | null>(null);
 
-  /* =========================================================
-     LOAD CART
-  ========================================================= */
+  const [notes, setNotes] = useState<Record<string, string>>({});
+  const [noteItem, setNoteItem] = useState<CartItemWithNote | null>(null);
+  const [noteDraft, setNoteDraft] = useState("");
 
   useEffect(() => {
     const loadCart = () => {
-      setCart(getCart());
+      const items = getCart() as CartItemWithNote[];
+      const storedNotes = readStoredNotes();
+
+      const hydratedItems = items.map((item) => ({
+        ...item,
+        note: item.note?.trim() || storedNotes[item.cartId] || "",
+      }));
+
+      setCart(hydratedItems);
+      setNotes(storedNotes);
     };
 
     loadCart();
@@ -74,10 +117,6 @@ export default function CartPage() {
       window.removeEventListener("cart-updated", loadCart);
     };
   }, []);
-
-  /* =========================================================
-     LOAD ADMIN CONTROLLED SUGGESTIONS
-  ========================================================= */
 
   useEffect(() => {
     const loadSuggestions = async () => {
@@ -106,12 +145,20 @@ export default function CartPage() {
         const data = await response.json();
 
         if (data.success) {
-          const cartIds = new Set(cart.map((item) => item.menuItemId));
+          const cartIds = new Set(
+            cart.map((item) => item.menuItemId)
+          );
 
           const uniqueSuggestions = (data.items ?? []).filter(
-            (item: Suggestion, index: number, array: Suggestion[]) =>
+            (
+              item: Suggestion,
+              index: number,
+              array: Suggestion[]
+            ) =>
               !cartIds.has(item.id) &&
-              array.findIndex((entry) => entry.id === item.id) === index
+              array.findIndex(
+                (entry) => entry.id === item.id
+              ) === index
           );
 
           setSuggestions(uniqueSuggestions);
@@ -129,10 +176,6 @@ export default function CartPage() {
     loadSuggestions();
   }, [cart]);
 
-  /* =========================================================
-     TOTALS
-  ========================================================= */
-
   const subtotal = useMemo(() => {
     return cart.reduce(
       (total, item) => total + item.price * item.quantity,
@@ -141,45 +184,122 @@ export default function CartPage() {
   }, [cart]);
 
   const itemCount = useMemo(() => {
-    return cart.reduce((total, item) => total + item.quantity, 0);
+    return cart.reduce(
+      (total, item) => total + item.quantity,
+      0
+    );
   }, [cart]);
 
-  /* =========================================================
-     QUANTITY
-  ========================================================= */
-
-  const changeQuantity = (cartId: string, quantity: number) => {
+  const changeQuantity = (
+    cartId: string,
+    quantity: number
+  ) => {
     if (quantity < 1) return;
 
-    const updated = updateCartQuantity(cartId, quantity);
-    setCart(updated);
-  };
+    const updated = updateCartQuantity(
+      cartId,
+      quantity
+    );
 
-  /* =========================================================
-     REMOVE
-  ========================================================= */
+    setCart(updated as CartItemWithNote[]);
+  };
 
   const removeItem = (cartId: string) => {
     const updated = removeFromCart(cartId);
-    setCart(updated);
+
+    const nextNotes = { ...notes };
+
+    delete nextNotes[cartId];
+
+    writeStoredNotes(nextNotes);
+    setNotes(nextNotes);
+
+    setCart(updated as CartItemWithNote[]);
   };
 
-  /* =========================================================
-     EMPTY CART
-  ========================================================= */
+  const openNoteEditor = (
+    item: CartItemWithNote
+  ) => {
+    setNoteItem(item);
+    setNoteDraft(
+      item.note?.trim() ||
+      notes[item.cartId] ||
+      ""
+    );
+  };
 
+  const closeNoteEditor = () => {
+    setNoteItem(null);
+    setNoteDraft("");
+  };
+
+  const saveNote = () => {
+    if (!noteItem) return;
+
+    const cleanNote = noteDraft
+      .trim()
+      .slice(0, 180);
+
+    const nextNotes = { ...notes };
+
+    if (cleanNote) {
+      nextNotes[noteItem.cartId] = cleanNote;
+    } else {
+      delete nextNotes[noteItem.cartId];
+    }
+
+    writeStoredNotes(nextNotes);
+    setNotes(nextNotes);
+
+    setCart((current) =>
+      current.map((item) =>
+        item.cartId === noteItem.cartId
+          ? {
+            ...item,
+            note: cleanNote,
+          }
+          : item
+      )
+    );
+
+    closeNoteEditor();
+  };
+
+  const addSuggestionDirectly = (
+    item: Suggestion
+  ) => {
+    addToCart({
+      cartId: item.id,
+      menuItemId: item.id,
+      name: item.name,
+      price: item.price,
+      quantity: 1,
+      image: item.image,
+      foodType: item.foodType,
+    });
+
+    setCart(
+      getCart() as CartItemWithNote[]
+    );
+  };
+
+  /*
+   * EMPTY CART
+   */
   if (cart.length === 0) {
     return (
       <main className="min-h-screen bg-[#EDEFEA] text-[#171A19]">
         <div className="mx-auto flex min-h-screen w-full max-w-[480px] flex-col bg-[#F7F8F6]">
-          {/* HEADER */}
           <header className="flex items-center gap-3 px-5 pb-5 pt-6">
             <Link
               href="/menu"
               aria-label="Back to menu"
               className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E1E5E1] bg-white text-[#103F35] shadow-[0_5px_18px_rgba(16,63,53,0.06)] transition-transform active:scale-95"
             >
-              <ArrowLeft size={19} strokeWidth={2} />
+              <ArrowLeft
+                size={19}
+                strokeWidth={2}
+              />
             </Link>
 
             <div>
@@ -193,7 +313,6 @@ export default function CartPage() {
             </div>
           </header>
 
-          {/* EMPTY STATE */}
           <div className="flex flex-1 flex-col items-center justify-center px-8 pb-28 text-center">
             <div className="relative flex h-[112px] w-[112px] items-center justify-center rounded-[34px] border border-[#DDE5DF] bg-white shadow-[0_18px_45px_rgba(16,63,53,0.09)]">
               <div className="absolute inset-3 rounded-[27px] bg-[#EEF5F1]" />
@@ -221,10 +340,14 @@ export default function CartPage() {
 
             <Link
               href="/menu"
-              className="mt-8 flex h-12 items-center gap-2 rounded-full bg-[#103F35] px-6 text-[13px] font-semibold text-white shadow-[0_10px_25px_rgba(16,63,53,0.18)] transition-transform active:scale-[0.97]"
-            >
+              className="mt-8 flex h-12 items-center gap-2 rounded-full bg-[#103F35] px-6 text-[13px] font-semibold text-white shadow-[0_10px_25px_rgba(16,63,53,0.18)] transition-transform active:scale-[0.97]">
               Explore Menu
-              <ArrowRight size={16} strokeWidth={2} />
+
+              <ArrowRight
+                size={16}
+                strokeWidth={2}
+                color="white"
+              />
             </Link>
           </div>
         </div>
@@ -232,13 +355,10 @@ export default function CartPage() {
     );
   }
 
-  /* =========================================================
-     CART
-  ========================================================= */
-
   return (
     <main className="min-h-screen bg-[#EDEFEA] text-[#171A19]">
       <div className="mx-auto min-h-screen w-full max-w-[480px] overflow-hidden bg-[#F7F8F6] pb-32">
+
         {/* HEADER */}
         <header className="flex items-center justify-between px-5 pb-5 pt-6">
           <div className="flex items-center gap-3">
@@ -247,7 +367,10 @@ export default function CartPage() {
               aria-label="Back to menu"
               className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E1E5E1] bg-white text-[#103F35] shadow-[0_5px_18px_rgba(16,63,53,0.06)] transition-transform active:scale-95"
             >
-              <ArrowLeft size={19} strokeWidth={2} />
+              <ArrowLeft
+                size={19}
+                strokeWidth={2}
+              />
             </Link>
 
             <div>
@@ -268,149 +391,276 @@ export default function CartPage() {
 
         {/* CART ITEMS */}
         <section className="px-5">
-          <div className="mb-3 flex items-center justify-between">
+          <div className="mb-3 flex items-end justify-between">
             <div>
               <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#9A9F9B]">
                 Selected dishes
               </p>
 
-              <h2 className="mt-1 text-[16px] font-semibold">
+              <h2 className="mt-1 text-[17px] font-semibold">
                 Items in your cart
               </h2>
             </div>
 
             <span className="text-[11px] font-medium text-[#7A817D]">
-              {itemCount} {itemCount === 1 ? "item" : "items"}
+              {itemCount}{" "}
+              {itemCount === 1
+                ? "item"
+                : "items"}
             </span>
           </div>
 
           <div className="space-y-3">
-            {cart.map((item) => (
-              <article
-                key={item.cartId}
-                className="overflow-hidden rounded-[25px] border border-[#E3E7E3] bg-white p-3 shadow-[0_8px_26px_rgba(23,26,25,0.055)]"
-              >
-                <div className="flex gap-3.5">
-                  {/* IMAGE */}
-                  <div className="relative h-[94px] w-[94px] shrink-0 overflow-hidden rounded-[20px] bg-[#EDEBE6]">
-                    {item.image ? (
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        loading="lazy"
-                        decoding="async"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center">
-                        <ShoppingBag
-                          size={27}
-                          strokeWidth={1.4}
-                          className="text-[#A5ADA8]"
-                        />
-                      </div>
-                    )}
+            {cart.map((item) => {
+              const itemNote =
+                item.note?.trim() ||
+                notes[item.cartId] ||
+                "";
 
-                    <div className="absolute bottom-2 left-2 rounded-full bg-black/55 px-2 py-1 backdrop-blur-sm">
-                      <FoodTypeIndicator foodType={item.foodType} compact />
-                    </div>
-                  </div>
+              return (
+                <article
+                  key={item.cartId}
+                  className="overflow-hidden rounded-[25px] border border-[#E3E7E3] bg-white shadow-[0_8px_26px_rgba(23,26,25,0.055)]"
+                >
+                  <div className="p-3">
+                    <div className="flex gap-3.5">
 
-                  {/* DETAILS */}
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <h3 className="line-clamp-2 text-[14px] font-semibold leading-[1.25] tracking-[-0.01em]">
-                          {formatName(item.name)}
-                        </h3>
-
-                        {item.variantName && (
-                          <div className="mt-1.5 inline-flex items-center gap-1 rounded-full bg-[#F2F4F1] px-2 py-1">
-                            <span className="text-[9px] font-semibold uppercase tracking-[0.08em] text-[#737A75]">
-                              {formatName(item.variantName)}
-                            </span>
+                      {/* IMAGE */}
+                      <div className="relative h-[94px] w-[94px] shrink-0 overflow-hidden rounded-[20px] bg-[#EDEBE6]">
+                        {item.image ? (
+                          <img
+                            src={item.image}
+                            alt={formatName(
+                              item.name
+                            )}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-full w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center">
+                            <ShoppingBag
+                              size={27}
+                              strokeWidth={1.4}
+                              className="text-[#A5ADA8]"
+                            />
                           </div>
                         )}
+
+                        <div className="absolute bottom-2 left-2 rounded-full bg-black/55 px-2 py-1 backdrop-blur-sm">
+                          <FoodTypeIndicator
+                            foodType={
+                              item.foodType
+                            }
+                            compact
+                          />
+                        </div>
                       </div>
 
-                      <button
-                        type="button"
-                        onClick={() => removeItem(item.cartId)}
-                        aria-label={`Remove ${item.name}`}
-                        className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#F0DEDA] bg-[#FFF7F5] text-[#B85C49] transition-transform active:scale-90"
-                      >
-                        <Trash2 size={14} strokeWidth={1.8} />
-                      </button>
+                      {/* DETAILS */}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <div className="min-w-0">
+                            <h3 className="line-clamp-2 text-[15px] font-semibold leading-[1.25] tracking-[-0.01em]">
+                              {formatName(
+                                item.name
+                              )}
+                            </h3>
+
+                            {item.variantName && (
+                              <div className="mt-1.5 inline-flex max-w-full items-center rounded-full bg-[#F2F4F1] px-2 py-1">
+                                <span className="truncate text-[9px] font-semibold uppercase tracking-[0.08em] text-[#737A75]">
+                                  {formatName(
+                                    item.variantName
+                                  )}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              removeItem(
+                                item.cartId
+                              )
+                            }
+                            aria-label={`Remove ${formatName(
+                              item.name
+                            )}`}
+                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#F0DEDA] bg-[#FFF7F5] text-[#B85C49] transition-transform active:scale-90"
+                          >
+                            <Trash2
+                              size={14}
+                              strokeWidth={1.8}
+                            />
+                          </button>
+                        </div>
+
+                        <div className="mt-3 flex items-end justify-between gap-3">
+                          <div>
+                            <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-[#A0A6A2]">
+                              Item total
+                            </p>
+
+                            <p className="mt-0.5 text-[17px] font-bold tracking-[-0.02em] text-[#103F35]">
+                              {formatPrice(
+                                item.price *
+                                item.quantity
+                              )}
+                            </p>
+                          </div>
+
+                          <QuantityControl
+                            quantity={
+                              item.quantity
+                            }
+                            onDecrease={() =>
+                              changeQuantity(
+                                item.cartId,
+                                item.quantity -
+                                1
+                              )
+                            }
+                            onIncrease={() =>
+                              changeQuantity(
+                                item.cartId,
+                                item.quantity +
+                                1
+                              )
+                            }
+                          />
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="mt-3 flex items-end justify-between gap-3">
-                      <div>
-                        <p className="text-[9px] font-medium uppercase tracking-[0.12em] text-[#A0A6A2]">
-                          Item total
-                        </p>
+                    {/* NOTE */}
+                    <div className="mt-3 border-t border-[#EEF1EE] pt-3">
+                      {itemNote ? (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openNoteEditor(
+                              item
+                            )
+                          }
+                          className="flex w-full items-start gap-3 rounded-[16px] bg-[#FBF7EF] px-3.5 py-3 text-left transition-colors active:bg-[#F8F0E1]"
+                        >
+                          <FileText
+                            size={16}
+                            className="mt-0.5 shrink-0 text-[#B58A42]"
+                          />
 
-                        <p className="mt-0.5 text-[17px] font-bold tracking-[-0.02em] text-[#103F35]">
-                          {formatPrice(item.price * item.quantity)}
-                        </p>
-                      </div>
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-center gap-2">
+                              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-[#9A6C24]">
+                                Special Note
+                              </span>
 
-                      <QuantityControl
-                        quantity={item.quantity}
-                        onDecrease={() =>
-                          changeQuantity(item.cartId, item.quantity - 1)
-                        }
-                        onIncrease={() =>
-                          changeQuantity(item.cartId, item.quantity + 1)
-                        }
-                      />
+                              <Pencil
+                                size={11}
+                                className="text-[#9A6C24]"
+                              />
+                            </span>
+
+                            <span className="mt-1 block text-[12px] leading-5 text-[#5F625F]">
+                              {itemNote}
+                            </span>
+                          </span>
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            openNoteEditor(
+                              item
+                            )
+                          }
+                          className="flex w-full items-center justify-between rounded-[16px] border border-dashed border-[#D8DED9] bg-[#FAFBF9] px-3.5 py-3 text-left transition-colors active:bg-[#F1F5F2]"
+                        >
+                          <span className="flex items-center gap-2.5">
+                            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#EEF5F1] text-[#103F35]">
+                              <FileText
+                                size={15}
+                              />
+                            </span>
+
+                            <span>
+                              <span className="block text-[12px] font-semibold text-[#303633]">
+                                Add Note
+                              </span>
+
+                              <span className="mt-0.5 block text-[10px] text-[#8A918D]">
+                                Less garlic, cut pieces, extra roasted...
+                              </span>
+                            </span>
+                          </span>
+
+                          <ChevronRight
+                            size={16}
+                            className="text-[#8A918D]"
+                          />
+                        </button>
+                      )}
                     </div>
                   </div>
-                </div>
-              </article>
-            ))}
+                </article>
+              );
+            })}
           </div>
         </section>
 
-        {/* SUGGESTIONS */}
-        {!loadingSuggestions && suggestions.length > 0 && (
-          <section className="mt-9">
-            <div className="mb-4 flex items-end justify-between px-5">
-              <div>
-                <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#B58A42]">
-                  Curated for you
-                </p>
+        {/* ADMIN CONTROLLED SUGGESTIONS */}
+        {!loadingSuggestions &&
+          suggestions.length > 0 && (
+            <section className="mt-9">
+              <div className="mb-4 flex items-end justify-between px-5">
+                <div>
+                  <p className="text-[9px] font-semibold uppercase tracking-[0.24em] text-[#B58A42]">
+                    Curated for you
+                  </p>
 
-                <h2 className="mt-1 text-[21px] font-semibold tracking-[-0.035em]">
-                  Complete your meal
-                </h2>
+                  <h2 className="mt-1 text-[21px] font-semibold tracking-[-0.035em]">
+                    Complete your meal
+                  </h2>
+                </div>
+
+                <span className="pb-0.5 text-[10px] font-medium text-[#8A918D]">
+                  Chef picks
+                </span>
               </div>
 
-              <span className="pb-0.5 text-[10px] font-medium text-[#8A918D]">
-                Chef picks
-              </span>
-            </div>
+              <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+                {suggestions.map(
+                  (item) => (
+                    <SuggestionCard
+                      key={item.id}
+                      item={item}
+                      onSelect={() => {
+                        if (
+                          item.variants
+                            ?.length > 0
+                        ) {
+                          setSelectedSuggestion(
+                            item
+                          );
+                        } else {
+                          addSuggestionDirectly(
+                            item
+                          );
+                        }
+                      }}
+                    />
+                  )
+                )}
+              </div>
+            </section>
+          )}
 
-            <div className="flex gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              {suggestions.map((item) => (
-                <SuggestionCard
-                  key={item.id}
-                  item={item}
-                  onSelect={() => {
-                    if (item.variants?.length > 0) {
-                      setSelectedSuggestion(item);
-                    } else {
-                      addSuggestionDirectly(item);
-                    }
-                  }}
-                />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {/* BILL */}
+        {/* BILL SUMMARY */}
         <section className="mt-8 px-5">
           <div className="overflow-hidden rounded-[27px] border border-[#E0E5E1] bg-white shadow-[0_8px_28px_rgba(23,26,25,0.055)]">
+
             <div className="flex items-center justify-between border-b border-[#EEF0ED] px-5 py-4">
               <div>
                 <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-[#B58A42]">
@@ -423,11 +673,16 @@ export default function CartPage() {
               </div>
 
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-[#EEF5F1] text-[#103F35]">
-                <ShoppingBag size={16} strokeWidth={1.8} />
+                <ShoppingBag
+                  size={16}
+                  strokeWidth={1.8}
+                />
               </div>
             </div>
 
             <div className="space-y-4 px-5 py-5">
+
+              {/* ITEM TOTAL */}
               <div className="flex items-center justify-between">
                 <span className="text-[13px] text-[#7A817D]">
                   Item total
@@ -438,6 +693,7 @@ export default function CartPage() {
                 </span>
               </div>
 
+              {/* FREE DELIVERY */}
               <div className="flex items-center justify-between">
                 <span className="text-[13px] text-[#7A817D]">
                   Delivery fee
@@ -450,10 +706,11 @@ export default function CartPage() {
 
               <div className="border-t border-dashed border-[#DCE1DD]" />
 
+              {/* CART TOTAL */}
               <div className="flex items-end justify-between">
                 <div>
                   <p className="text-[9px] font-semibold uppercase tracking-[0.16em] text-[#9A9F9B]">
-                    Total payable
+                    Cart Total
                   </p>
 
                   <p className="mt-1 text-[22px] font-bold tracking-[-0.035em] text-[#103F35]">
@@ -462,14 +719,14 @@ export default function CartPage() {
                 </div>
 
                 <span className="mb-1 text-[10px] font-medium text-[#8A918D]">
-                  Taxes included
+                  Taxes calculated at checkout
                 </span>
               </div>
             </div>
           </div>
         </section>
 
-        {/* CHECKOUT */}
+        {/* CHECKOUT CTA */}
         <div className="mt-5 px-5">
           <Link
             href="/checkout"
@@ -480,18 +737,21 @@ export default function CartPage() {
                 Total
               </p>
 
-              <p className="mt-0.5 text-[19px] font-bold tracking-[-0.02em]">
+              <p className="mt-0.5 text-[19px] font-bold tracking-[-0.02em] text-white">
                 {formatPrice(subtotal)}
               </p>
             </div>
 
             <div className="flex items-center gap-3">
-              <span className="text-[12px] font-semibold">
+              <span className="text-[12px] font-semibold text-white transition-transform group-active:translate-x-0.5 ">
                 Proceed to Checkout
               </span>
 
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#D6A34A] text-[#103F35] transition-transform group-active:translate-x-0.5">
-                <ArrowRight size={16} strokeWidth={2.2} />
+                <ArrowRight
+                  size={16}
+                  strokeWidth={2.2}
+                />
               </span>
             </div>
           </Link>
@@ -506,40 +766,42 @@ export default function CartPage() {
       {selectedSuggestion && (
         <VariantSelector
           item={selectedSuggestion}
-          onClose={() => setSelectedSuggestion(null)}
+          onClose={() =>
+            setSelectedSuggestion(null)
+          }
           onAdded={() => {
             setSelectedSuggestion(null);
-            setCart(getCart());
+
+            setCart(
+              getCart() as CartItemWithNote[]
+            );
           }}
+        />
+      )}
+
+      {/* NOTE SHEET */}
+      {noteItem && (
+        <NoteSheet
+          item={noteItem}
+          value={noteDraft}
+          onChange={setNoteDraft}
+          onClose={closeNoteEditor}
+          onSave={saveNote}
         />
       )}
     </main>
   );
-
-  function addSuggestionDirectly(item: Suggestion) {
-    addToCart({
-      cartId: item.id,
-      menuItemId: item.id,
-      name: item.name,
-      price: item.price,
-      quantity: 1,
-      image: item.image,
-      foodType: item.foodType,
-    });
-
-    setCart(getCart());
-  }
 }
 
 /* =========================================================
-   FOOD TYPE INDICATOR
+   FOOD TYPE
 ========================================================= */
 
 function FoodTypeIndicator({
   foodType,
   compact = false,
 }: {
-  foodType: "VEG" | "NON_VEG";
+  foodType?: "VEG" | "NON_VEG" | string;
   compact?: boolean;
 }) {
   const isVeg = foodType === "VEG";
@@ -547,19 +809,27 @@ function FoodTypeIndicator({
   return (
     <div className="flex items-center gap-1">
       <span
-        className={`flex items-center justify-center rounded-[2px] border ${compact ? "h-3 w-3" : "h-3.5 w-3.5"
-          } ${isVeg ? "border-[#4E9A62]" : "border-[#C95C5C]"
+        className={`flex items-center justify-center rounded-[2px] border ${compact
+          ? "h-3 w-3"
+          : "h-3.5 w-3.5"
+          } ${isVeg
+            ? "border-[#4E9A62]"
+            : "border-[#C95C5C]"
           }`}
       >
         <span
-          className={`rounded-full ${compact ? "h-1.5 w-1.5" : "h-1.5 w-1.5"
-            } ${isVeg ? "bg-[#4E9A62]" : "bg-[#C95C5C]"}`}
+          className={`h-1.5 w-1.5 rounded-full ${isVeg
+            ? "bg-[#4E9A62]"
+            : "bg-[#C95C5C]"
+            }`}
         />
       </span>
 
       {!compact && (
         <span className="text-[9px] font-medium text-[#747B76]">
-          {isVeg ? "VEG" : "NON-VEG"}
+          {isVeg
+            ? "VEG"
+            : "NON-VEG"}
         </span>
       )}
     </div>
@@ -588,7 +858,10 @@ function QuantityControl({
         aria-label="Decrease quantity"
         className="flex h-7 w-7 items-center justify-center rounded-full bg-white text-[#103F35] shadow-[0_2px_7px_rgba(16,63,53,0.08)] transition-transform active:scale-90 disabled:cursor-not-allowed disabled:opacity-35"
       >
-        <Minus size={12} strokeWidth={2.2} />
+        <Minus
+          size={12}
+          strokeWidth={2.2}
+        />
       </button>
 
       <span className="w-8 text-center text-[11px] font-bold text-[#252A28]">
@@ -601,7 +874,10 @@ function QuantityControl({
         aria-label="Increase quantity"
         className="flex h-7 w-7 items-center justify-center rounded-full bg-[#103F35] text-white shadow-[0_3px_9px_rgba(16,63,53,0.18)] transition-transform active:scale-90"
       >
-        <Plus size={12} strokeWidth={2.2} />
+        <Plus
+          size={12}
+          strokeWidth={2.2}
+        />
       </button>
     </div>
   );
@@ -618,25 +894,33 @@ function SuggestionCard({
   item: Suggestion;
   onSelect: () => void;
 }) {
-  const [adding, setAdding] = useState(false);
+  const [adding, setAdding] =
+    useState(false);
 
   const handleAdd = () => {
     setAdding(true);
+
     onSelect();
 
-    if (item.variants?.length === 0) {
-      window.setTimeout(() => setAdding(false), 400);
+    if (
+      item.variants?.length === 0
+    ) {
+      window.setTimeout(
+        () => setAdding(false),
+        400
+      );
     }
   };
 
   return (
     <article className="min-w-[178px] max-w-[178px] overflow-hidden rounded-[24px] border border-[#E1E5E1] bg-white shadow-[0_7px_24px_rgba(23,26,25,0.055)]">
-      {/* IMAGE */}
       <div className="relative h-[122px] overflow-hidden bg-[#EDEBE6]">
         {item.image ? (
           <img
             src={item.image}
-            alt={item.name}
+            alt={formatName(
+              item.name
+            )}
             loading="lazy"
             decoding="async"
             className="h-full w-full object-cover"
@@ -652,17 +936,19 @@ function SuggestionCard({
         )}
 
         <div className="absolute left-2.5 top-2.5 rounded-full bg-white/90 px-2 py-1 shadow-sm backdrop-blur-sm">
-          <FoodTypeIndicator foodType={item.foodType} />
+          <FoodTypeIndicator
+            foodType={item.foodType}
+          />
         </div>
 
-        {item.variants?.length > 0 && (
-          <div className="absolute bottom-2.5 right-2.5 rounded-full bg-[#103F35]/90 px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.08em] text-white">
-            Options
-          </div>
-        )}
+        {item.variants?.length >
+          0 && (
+            <div className="absolute bottom-2.5 right-2.5 rounded-full bg-[#103F35]/90 px-2 py-1 text-[8px] font-semibold uppercase tracking-[0.08em] text-white">
+              Options
+            </div>
+          )}
       </div>
 
-      {/* CONTENT */}
       <div className="p-3.5">
         <h3 className="line-clamp-2 min-h-[38px] text-[13px] font-semibold leading-[1.35] tracking-[-0.01em]">
           {formatName(item.name)}
@@ -675,7 +961,9 @@ function SuggestionCard({
             </p>
 
             <p className="mt-0.5 text-[15px] font-bold text-[#103F35]">
-              {formatPrice(item.price)}
+              {formatPrice(
+                item.price
+              )}
             </p>
           </div>
 
@@ -687,13 +975,19 @@ function SuggestionCard({
           >
             {adding ? (
               <>
-                <Check size={12} strokeWidth={2.5} />
+                <Check
+                  size={12}
+                  strokeWidth={2.5}
+                />
                 Added
               </>
-            ) : item.variants?.length > 0 ? (
+            ) : item.variants
+              ?.length > 0 ? (
               <>
                 Add
-                <ChevronDown size={12} />
+                <ChevronDown
+                  size={12}
+                />
               </>
             ) : (
               "Add"
@@ -718,42 +1012,57 @@ function VariantSelector({
   onClose: () => void;
   onAdded: () => void;
 }) {
-  const availableVariants = item.variants.filter(
-    (variant) => variant.isAvailable
-  );
+  const availableVariants =
+    item.variants.filter(
+      (variant) =>
+        variant.isAvailable
+    );
 
-  const [selectedVariantId, setSelectedVariantId] = useState(
+  const [
+    selectedVariantId,
+    setSelectedVariantId,
+  ] = useState(
     availableVariants[0]?.id ?? ""
   );
 
-  const selectedVariant = availableVariants.find(
-    (variant) => variant.id === selectedVariantId
-  );
+  const selectedVariant =
+    availableVariants.find(
+      (variant) =>
+        variant.id ===
+        selectedVariantId
+    );
 
   const handleAdd = () => {
-    if (!selectedVariant) return;
+    if (!selectedVariant)
+      return;
 
     addToCart({
       cartId: `${item.id}-${selectedVariant.id}`,
       menuItemId: item.id,
+      variantId:
+        selectedVariant.id,
       name: item.name,
-      variantName: selectedVariant.name,
-      price: selectedVariant.price,
+      variantName:
+        selectedVariant.name,
+      price:
+        selectedVariant.price,
       quantity: 1,
       image: item.image,
-      foodType: item.foodType,
+      foodType:
+        item.foodType,
     });
 
     onAdded();
   };
 
-  if (availableVariants.length === 0) {
+  if (
+    availableVariants.length === 0
+  ) {
     return null;
   }
 
   return (
     <div className="fixed inset-0 z-[100]">
-      {/* BACKDROP */}
       <button
         type="button"
         aria-label="Close variant selector"
@@ -761,8 +1070,8 @@ function VariantSelector({
         className="absolute inset-0 bg-[#071F1A]/45 backdrop-blur-[2px]"
       />
 
-      {/* SHEET */}
       <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-[480px] rounded-t-[30px] border-t border-white/20 bg-[#F7F8F6] px-5 pb-7 pt-3 shadow-[0_-15px_50px_rgba(0,0,0,0.18)]">
+
         <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-[#D4D9D5]" />
 
         <div className="flex items-start justify-between gap-4">
@@ -772,7 +1081,9 @@ function VariantSelector({
             </p>
 
             <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.03em]">
-              {formatName(item.name)}
+              {formatName(
+                item.name
+              )}
             </h2>
           </div>
 
@@ -786,53 +1097,69 @@ function VariantSelector({
           </button>
         </div>
 
-        <div className="mt-5 space-y-2.5">
-          {availableVariants.map((variant) => {
-            const selected = selectedVariantId === variant.id;
+        <div className="mt-5 max-h-[45vh] space-y-2.5 overflow-y-auto pr-1">
+          {availableVariants.map(
+            (variant) => {
+              const selected =
+                selectedVariantId ===
+                variant.id;
 
-            return (
-              <button
-                key={variant.id}
-                type="button"
-                onClick={() => setSelectedVariantId(variant.id)}
-                className={`flex w-full items-center justify-between rounded-[18px] border px-4 py-3.5 text-left transition-all ${selected
-                  ? "border-[#103F35] bg-[#EEF5F1] shadow-[0_4px_15px_rgba(16,63,53,0.07)]"
-                  : "border-[#E0E4E0] bg-white"
-                  }`}
-              >
-                <div className="flex items-center gap-3">
-                  <span
-                    className={`flex h-5 w-5 items-center justify-center rounded-full border ${selected
-                      ? "border-[#103F35] bg-[#103F35]"
-                      : "border-[#C9CFCA] bg-white"
-                      }`}
-                  >
-                    {selected && (
-                      <Check
-                        size={11}
-                        strokeWidth={3}
-                        className="text-white"
-                      />
-                    )}
-                  </span>
-
-                  <span
-                    className={`text-[13px] font-semibold ${selected ? "text-[#103F35]" : "text-[#343A37]"
-                      }`}
-                  >
-                    {formatName(variant.name)}
-                  </span>
-                </div>
-
-                <span
-                  className={`text-[13px] font-bold ${selected ? "text-[#103F35]" : "text-[#68716C]"
+              return (
+                <button
+                  key={variant.id}
+                  type="button"
+                  onClick={() =>
+                    setSelectedVariantId(
+                      variant.id
+                    )
+                  }
+                  className={`flex min-h-[58px] w-full items-center justify-between gap-3 rounded-[18px] border px-4 py-3.5 text-left transition-all ${selected
+                    ? "border-[#103F35] bg-[#EEF5F1] shadow-[0_4px_15px_rgba(16,63,53,0.07)]"
+                    : "border-[#E0E4E0] bg-white"
                     }`}
                 >
-                  {formatPrice(variant.price)}
-                </span>
-              </button>
-            );
-          })}
+                  <div className="flex min-w-0 items-center gap-3">
+                    <span
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${selected
+                        ? "border-[#103F35] bg-[#103F35]"
+                        : "border-[#C9CFCA] bg-white"
+                        }`}
+                    >
+                      {selected && (
+                        <Check
+                          size={11}
+                          strokeWidth={3}
+                          className="text-white"
+                        />
+                      )}
+                    </span>
+
+                    <span
+                      className={`min-w-0 break-words text-[13px] font-semibold ${selected
+                        ? "text-[#103F35]"
+                        : "text-[#343A37]"
+                        }`}
+                    >
+                      {formatName(
+                        variant.name
+                      )}
+                    </span>
+                  </div>
+
+                  <span
+                    className={`shrink-0 text-[13px] font-bold ${selected
+                      ? "text-[#103F35]"
+                      : "text-[#68716C]"
+                      }`}
+                  >
+                    {formatPrice(
+                      variant.price
+                    )}
+                  </span>
+                </button>
+              );
+            }
+          )}
         </div>
 
         <button
@@ -841,27 +1168,155 @@ function VariantSelector({
           disabled={!selectedVariant}
           className="mt-5 flex h-[56px] w-full items-center justify-between rounded-[19px] bg-[#103F35] px-5 text-white shadow-[0_10px_25px_rgba(16,63,53,0.20)] transition-transform active:scale-[0.985] disabled:opacity-50"
         >
-          <div>
+          <div className="min-w-0">
             <p className="text-[9px] uppercase tracking-[0.15em] text-white/55">
               Selected
             </p>
 
-            <p className="mt-0.5 text-[14px] font-semibold">
+            <p className="mt-0.5 truncate text-[14px] font-semibold">
               {selectedVariant
-                ? formatName(selectedVariant.name)
+                ? formatName(
+                  selectedVariant.name
+                )
                 : "Choose an option"}
             </p>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex shrink-0 items-center gap-2">
             <span className="text-[15px] font-bold">
               {selectedVariant
-                ? formatPrice(selectedVariant.price)
-                : formatPrice(item.price)}
+                ? formatPrice(
+                  selectedVariant.price
+                )
+                : formatPrice(
+                  item.price
+                )}
             </span>
 
-            <ArrowRight size={17} />
+            <ArrowRight
+              size={17}
+            />
           </div>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* =========================================================
+   NOTE SHEET
+========================================================= */
+
+function NoteSheet({
+  item,
+  value,
+  onChange,
+  onClose,
+  onSave,
+}: {
+  item: CartItemWithNote;
+  value: string;
+  onChange: (value: string) => void;
+  onClose: () => void;
+  onSave: () => void;
+}) {
+  const remaining =
+    180 - value.length;
+
+  return (
+    <div className="fixed inset-0 z-[120]">
+      <button
+        type="button"
+        aria-label="Close note editor"
+        onClick={onClose}
+        className="absolute inset-0 bg-[#071F1A]/45 backdrop-blur-[2px]"
+      />
+
+      <div className="absolute inset-x-0 bottom-0 mx-auto w-full max-w-[480px] rounded-t-[30px] border-t border-white/20 bg-[#F7F8F6] px-5 pb-7 pt-3 shadow-[0_-15px_50px_rgba(0,0,0,0.18)]">
+
+        <div className="mx-auto mb-5 h-1 w-10 rounded-full bg-[#D4D9D5]" />
+
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <p className="text-[9px] font-semibold uppercase tracking-[0.22em] text-[#B58A42]">
+              Special request
+            </p>
+
+            <h2 className="mt-1 text-[20px] font-semibold tracking-[-0.03em]">
+              Add a note
+            </h2>
+
+            <p className="mt-1.5 line-clamp-2 text-[12px] leading-5 text-[#7A817D]">
+              {formatName(
+                item.name
+              )}
+              {item.variantName
+                ? ` • ${formatName(
+                  item.variantName
+                )}`
+                : ""}
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close note"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-[#DDE3DE] bg-white text-[#5F6863] active:scale-90"
+          >
+            <X size={16} />
+          </button>
+        </div>
+
+        <div className="mt-5 rounded-[20px] border border-[#DDE3DE] bg-white p-3 shadow-[0_6px_20px_rgba(23,26,25,0.04)]">
+          <textarea
+            value={value}
+            onChange={(event) =>
+              onChange(
+                event.target.value.slice(
+                  0,
+                  180
+                )
+              )
+            }
+            maxLength={180}
+            autoFocus
+            rows={4}
+            placeholder="Example: Less garlic, cut into pieces, more roasted..."
+            className="w-full resize-none bg-transparent px-1 py-1 text-[14px] leading-6 text-[#252A28] outline-none placeholder:text-[#A0A6A2]"
+          />
+
+          <div className="flex items-center justify-between border-t border-[#EEF1EE] px-1 pt-2">
+            <span className="text-[10px] text-[#8A918D]">
+              Please keep requests short and clear.
+            </span>
+
+            <span
+              className={`text-[10px] font-semibold ${remaining < 25
+                ? "text-[#B85C49]"
+                : "text-[#8A918D]"
+                }`}
+            >
+              {remaining}
+            </span>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onSave}
+          className="mt-4 flex h-[56px] w-full items-center justify-between rounded-[19px] bg-[#103F35] px-5 text-white shadow-[0_10px_25px_rgba(16,63,53,0.20)] active:scale-[0.985]"
+        >
+          <span className="text-[14px] font-semibold">
+            Save Note
+          </span>
+
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-[#D6A34A] text-[#103F35]">
+            <Check
+              size={17}
+              strokeWidth={2.5}
+            />
+          </span>
         </button>
       </div>
     </div>
