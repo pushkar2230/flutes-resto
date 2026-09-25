@@ -11,6 +11,7 @@ import BestSellerSection from "@/components/home/BestSellerSection";
 import MenuPreview from "@/components/home/MenuPreview";
 import FloatingCart from "@/components/home/FloatingCart";
 import BottomNavigation from "@/components/layout/BottomNavigation";
+import Footer from "@/components/layout/Footer";
 
 type FoodType = "ALL" | "VEG" | "NON_VEG";
 
@@ -18,31 +19,67 @@ export default function HomePage() {
   const [foodType, setFoodType] = useState<FoodType>("ALL");
 
   return (
-    <main className="min-h-screen w-full bg-[#F7F8F6] text-[#171A19]">
-      <div className="mx-auto min-h-screen w-full overflow-hidden bg-[#F7F8F6] md:max-w-[480px]">
+    <main className="min-h-screen w-full bg-[#EDEFEA] text-[#171A19]">
+      {/* Mobile-first restaurant app shell */}
+      <div
+        className="
+          relative mx-auto min-h-screen w-full overflow-x-hidden
+          bg-[#F7F8F6]
+          shadow-[0_0_60px_rgba(0,0,0,0.06)]
+          md:max-w-[480px]
+        "
+      >
+        {/* Header */}
         <Header />
 
-        <div className="relative z-20 -mt-1">
+        {/* Search */}
+        <div className="relative z-30 -mt-1 px-4">
           <SearchBar />
         </div>
 
-        <HeroBanner />
+        {/* Main content */}
+        <div className="relative">
+          {/* Hero */}
+          <section className="pt-3">
+            <HeroBanner />
+          </section>
 
-        <FoodTypeToggle
-          foodType={foodType}
-          onFoodTypeChange={setFoodType}
-        />
+          {/* Food type */}
+          <section className="pt-5">
+            <FoodTypeToggle
+              foodType={foodType}
+              onFoodTypeChange={setFoodType}
+            />
+          </section>
 
-        <CategorySlider />
+          {/* Categories */}
+          <section className="pt-5">
+            <CategorySlider />
+          </section>
 
-        <BestSellerSection foodType={foodType} />
+          {/* Best Sellers */}
+          <section className="pt-6">
+            <BestSellerSection foodType={foodType} />
+          </section>
 
-        <MenuPreview />
+          {/* Menu Preview */}
+          <section className="pt-7">
+            <MenuPreview />
+          </section>
 
-        <div className="h-32" />
+          {/* Footer */}
+          <section className="pt-8">
+            <Footer />
+          </section>
 
+          {/* Space for fixed bottom UI */}
+          <div className="h-36" />
+        </div>
+
+        {/* Floating cart */}
         <FloatingCart />
 
+        {/* Bottom navigation */}
         <BottomNavigation />
       </div>
     </main>

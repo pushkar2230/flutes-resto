@@ -55,7 +55,9 @@ export default function CheckoutPage() {
     const [placingOrder, setPlacingOrder] = useState(false);
 
     const [orderType, setOrderType] =
-        useState<OrderType>("TAKEAWAY");
+        useState<OrderType | null>(null);
+
+    const [locationChecked, setLocationChecked] = useState(false);
 
     const [customerName, setCustomerName] = useState("");
     const [customerPhone, setCustomerPhone] = useState("");
@@ -95,14 +97,20 @@ export default function CheckoutPage() {
 
     const checkDeliveryLocation = () => {
         if (!navigator.geolocation) {
+            setDeliveryEligible(false);
+            setDistanceKm(null);
+            setOrderType("TAKEAWAY");
+            setLocationChecked(true);
             setLocationError(
-                "Location access is not supported on this device."
+                "Location access is not supported on this device. You can continue with Takeaway."
             );
             return;
         }
 
         setCheckingDelivery(true);
+        setLocationChecked(false);
         setLocationError("");
+        setErrorMessage("");
 
         navigator.geolocation.getCurrentPosition(
             async (position) => {
@@ -113,42 +121,44 @@ export default function CheckoutPage() {
                 setCustomerLongitude(longitude);
 
                 try {
-                    const response = await fetch(
-                        "/api/delivery/check",
-                        {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({
-                                latitude,
-                                longitude,
-                            }),
-                        }
-                    );
+                    const response = await fetch("/api/delivery/check", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            latitude,
+                            longitude,
+                        }),
+                    });
 
                     const data = await response.json();
 
                     if (!response.ok || !data.success) {
                         setDeliveryEligible(false);
                         setDistanceKm(null);
-
+                        setOrderType("TAKEAWAY");
+                        setLocationChecked(true);
                         setLocationError(
                             data.message ||
-                            "We couldn't verify your delivery location."
+                            "We couldn't verify your delivery location. You can continue with Takeaway."
                         );
-
                         return;
                     }
 
-                    setDeliveryEligible(data.eligible);
+                    const eligible = Boolean(data.eligible);
+
+                    setDeliveryEligible(eligible);
                     setDistanceKm(data.distanceKm);
+                    setLocationChecked(true);
 
-                    if (!data.eligible) {
+                    if (eligible) {
+                        setOrderType("DELIVERY");
+                        setLocationError("");
+                    } else {
                         setOrderType("TAKEAWAY");
-
                         setLocationError(
-                            `You're ${data.distanceKm} km away from Flutes. Delivery is available within 4 km.`
+                            `You're ${data.distanceKm} km away from Flutes. Delivery is available within 4 km, so Takeaway has been selected.`
                         );
                     }
                 } catch (error) {
@@ -159,9 +169,10 @@ export default function CheckoutPage() {
 
                     setDeliveryEligible(false);
                     setDistanceKm(null);
-
+                    setOrderType("TAKEAWAY");
+                    setLocationChecked(true);
                     setLocationError(
-                        "Unable to verify your delivery location. Please try again."
+                        "Unable to verify your delivery location. You can continue with Takeaway or retry your location."
                     );
                 } finally {
                     setCheckingDelivery(false);
@@ -170,9 +181,10 @@ export default function CheckoutPage() {
             () => {
                 setCheckingDelivery(false);
                 setDeliveryEligible(false);
-
+                setOrderType("TAKEAWAY");
+                setLocationChecked(true);
                 setLocationError(
-                    "Location permission is required to check delivery availability."
+                    "Location permission was not granted. Takeaway is available, or you can retry your location."
                 );
             },
             {
@@ -228,46 +240,22 @@ export default function CheckoutPage() {
     const previewTotal = subtotal + previewTax;
 
     const handleOrderType = (type: OrderType) => {
-        if (type === "DELIVERY" && !deliveryEligible) {
-            return;
-        }
+        if (!locationChecked) return;
+        if (type === "DELIVERY" && !deliveryEligible) return;
 
         setOrderType(type);
         setErrorMessage("");
     };
 
-    const handleGetLocation = () => {
-        if (!navigator.geolocation) {
-            setErrorMessage(
-                "Location is not supported by this browser."
-            );
-            return;
+    const validateForm = () => {
+        if (!locationChecked) {
+            return "Please confirm your location first.";
         }
 
-        setLocationLoading(true);
-        setErrorMessage("");
+        if (!orderType) {
+            return "Please confirm your order type.";
+        }
 
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                setCustomerLatitude(position.coords.latitude);
-                setCustomerLongitude(position.coords.longitude);
-                setLocationLoading(false);
-            },
-            () => {
-                setLocationLoading(false);
-                setErrorMessage(
-                    "Unable to get your location. Please allow location access."
-                );
-            },
-            {
-                enableHighAccuracy: true,
-                timeout: 10000,
-                maximumAge: 60000,
-            }
-        );
-    };
-
-    const validateForm = () => {
         if (!customerName.trim()) {
             return "Please enter your full name.";
         }
@@ -310,6 +298,11 @@ export default function CheckoutPage() {
 
         if (validationError) {
             setErrorMessage(validationError);
+            return;
+        }
+
+        if (!orderType) {
+            setErrorMessage("Please confirm your location first.");
             return;
         }
 
@@ -427,11 +420,11 @@ export default function CheckoutPage() {
     }
 
     return (
-        <main className="min-h-screen bg-[#EDEFEA] text-[#171A19]">
-            <div className="mx-auto min-h-screen w-full max-w-[480px] overflow-hidden bg-[#F7F8F6] pb-32">
+        <main className="min-h-screen bg-[#E7ECE8] text-[#171A19] lg:px-6 lg:py-6">
+            <div className="mx-auto min-h-screen w-full max-w-[520px] overflow-hidden bg-[#F7F8F6] pb-40 shadow-none lg:min-h-[calc(100vh-48px)] lg:rounded-[32px] lg:shadow-[0_24px_80px_rgba(15,63,53,0.12)]">
 
                 {/* HEADER */}
-                <header className="sticky top-0 z-40 border-b border-black/[0.05] bg-[#F7F8F6]/95 px-5 pb-4 pt-4 backdrop-blur-xl">
+                <header className="sticky top-0 z-40 border-b border-black/[0.05] bg-[#F7F8F6]/96 px-5 pb-3.5 pt-4 backdrop-blur-xl">
                     <div className="flex items-center gap-3">
 
                         <Link
@@ -456,8 +449,8 @@ export default function CheckoutPage() {
                 </header>
 
                 {/* PROGRESS */}
-                <section className="px-5 pt-5">
-                    <div className="rounded-[22px] border border-black/[0.05] bg-white p-4">
+                <section className="px-5 pt-4">
+                    <div className="rounded-[20px] border border-[#E2E8E4] bg-white px-4 py-3 shadow-[0_6px_20px_rgba(15,63,53,0.04)]">
                         <div className="flex items-center">
 
                             <ProgressStep
@@ -485,7 +478,7 @@ export default function CheckoutPage() {
                 </section>
 
                 {/* HERO TITLE */}
-                <section className="px-5 pt-7">
+                <section className="px-5 pt-6">
                     <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#B77722]">
                         Almost there
                     </p>
@@ -499,100 +492,207 @@ export default function CheckoutPage() {
                     </p>
                 </section>
 
-                {/* ORDER TYPE */}
-                <section className="px-5 pt-6">
+                {/* LOCATION / ORDER TYPE */}
+                <section className="px-5 pt-5">
                     <SectionTitle
                         number="1"
-                        eyebrow="ORDER TYPE"
-                        title="How would you like your order?"
+                        eyebrow="DELIVERY OPTIONS"
+                        title="Where should we serve you?"
                     />
 
-                    <div className="mt-4 grid grid-cols-2 gap-3">
+                    {!locationChecked && !checkingDelivery && (
+                        <div className="mt-4 overflow-hidden rounded-[28px] border border-[#DCE6E0] bg-white shadow-[0_12px_34px_rgba(15,81,67,0.07)]">
+                            <div className="bg-[#103F35] px-5 py-6 text-white">
+                                <div className="flex items-center gap-4">
+                                    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white/10">
+                                        <MapPin size={25} />
+                                    </div>
 
-                        {/* TAKEAWAY */}
-                        <button
-                            type="button"
-                            onClick={() =>
-                                handleOrderType("TAKEAWAY")
-                            }
-                            className={`relative rounded-[24px] border p-4 text-left transition active:scale-[0.99] ${orderType === "TAKEAWAY"
-                                ? "border-[#0F5143] bg-[#EAF3EE] shadow-[0_10px_28px_rgba(15,81,67,0.10)]"
-                                : "border-black/[0.06] bg-white"
-                                }`}
-                        >
-                            {orderType === "TAKEAWAY" && (
-                                <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#0F5143] text-white">
-                                    <Check
-                                        size={14}
-                                        strokeWidth={3}
+                                    <div>
+                                        <p className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#D6A34A]">
+                                            Step 1
+                                        </p>
+                                        <h3 className="mt-1 text-[19px] font-extrabold tracking-[-0.02em]">
+                                            Confirm your location
+                                        </h3>
+                                    </div>
+                                </div>
+
+                                <p className="mt-5 text-[12px] leading-5 text-white/70">
+                                    We'll check your distance from Flutes and
+                                    automatically select Delivery or Takeaway.
+                                </p>
+                            </div>
+
+                            <div className="p-5">
+                                <div className="flex items-center justify-between rounded-2xl bg-[#F4F7F4] px-4 py-3">
+                                    <div>
+                                        <p className="text-[11px] font-bold text-[#103F35]">
+                                            Delivery radius
+                                        </p>
+                                        <p className="mt-0.5 text-[10px] text-[#7A817D]">
+                                            Available within 4 km
+                                        </p>
+                                    </div>
+
+                                    <span className="rounded-full bg-[#E4F1E9] px-3 py-1.5 text-[9px] font-extrabold uppercase tracking-[0.06em] text-[#247A43]">
+                                        Free Delivery
+                                    </span>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={checkDeliveryLocation}
+                                    className="mt-4 flex w-full items-center justify-center gap-2 rounded-[18px] bg-[#103F35] px-5 py-3.5 text-[12px] font-bold text-white shadow-[0_9px_22px_rgba(16,63,53,0.18)] transition active:scale-[0.985]"
+                                >
+                                    <MapPin size={17} />
+                                    Use My Location
+                                </button>
+
+                                <p className="mt-3 text-center text-[9px] leading-4 text-[#9A9F9B]">
+                                    Your location is used only to check the
+                                    restaurant's delivery radius.
+                                </p>
+                            </div>
+                        </div>
+                    )}
+
+                    {checkingDelivery && (
+                        <div className="mt-4 rounded-[28px] border border-[#DCE6E0] bg-white p-6 shadow-[0_12px_34px_rgba(15,81,67,0.07)]">
+                            <div className="flex flex-col items-center text-center">
+                                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-[#EAF3EE] text-[#103F35]">
+                                    <Loader2
+                                        size={27}
+                                        className="animate-spin"
                                     />
                                 </div>
-                            )}
 
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#F5EBDD] text-[#B77722]">
-                                <ShoppingBag size={21} />
+                                <p className="mt-5 text-[17px] font-extrabold text-[#171A19]">
+                                    Checking your location
+                                </p>
+
+                                <p className="mt-2 max-w-[275px] text-[11px] leading-5 text-[#7A817D]">
+                                    We're checking whether your location is
+                                    within Flutes' 4 km delivery radius.
+                                </p>
+
+                                <div className="mt-5 h-1.5 w-full overflow-hidden rounded-full bg-[#E7ECE8]">
+                                    <div className="h-full w-2/3 animate-pulse rounded-full bg-[#103F35]" />
+                                </div>
                             </div>
+                        </div>
+                    )}
 
-                            <p className="mt-4 text-[15px] font-extrabold">
-                                Takeaway
-                            </p>
+                    {locationChecked &&
+                        !checkingDelivery &&
+                        orderType === "DELIVERY" && (
+                            <div className="mt-4 overflow-hidden rounded-[28px] border border-[#CFE4D7] bg-[#F5FBF7] shadow-[0_10px_28px_rgba(15,81,67,0.06)]">
+                                <div className="p-5">
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-[#DFF1E7] text-[#0F5143]">
+                                            <Truck size={23} />
+                                        </div>
 
-                            <p className="mt-1 text-[11px] leading-5 text-[#737A76]">
-                                Pick up from Flutes
-                            </p>
-                        </button>
+                                        <div className="min-w-0 flex-1">
+                                            <div className="flex flex-wrap items-center gap-2">
+                                                <h3 className="text-[17px] font-extrabold text-[#0F5143]">
+                                                    Delivery selected
+                                                </h3>
+                                                <span className="rounded-full bg-[#DFF1E7] px-2.5 py-1 text-[8px] font-extrabold uppercase tracking-[0.08em] text-[#247A43]">
+                                                    FREE
+                                                </span>
+                                            </div>
 
-                        {/* DELIVERY */}
-                        <button
-                            type="button"
-                            onClick={checkDeliveryLocation}
-                            disabled={checkingDelivery}
-                            className={`relative rounded-[24px] border p-4 text-left transition active:scale-[0.99] ${deliveryEligible
-                                ? orderType === "DELIVERY"
-                                    ? "border-[#0F5143] bg-[#EAF3EE] shadow-[0_10px_28px_rgba(15,81,67,0.10)]"
-                                    : "border-black/[0.06] bg-white"
-                                : "border-black/[0.06] bg-white"
-                                }`}
-                        >
-                            {deliveryEligible &&
-                                orderType === "DELIVERY" && (
-                                    <div className="absolute right-3 top-3 flex h-6 w-6 items-center justify-center rounded-full bg-[#0F5143] text-white">
-                                        <Check size={14} strokeWidth={3} />
+                                            <p className="mt-1.5 text-[11px] leading-5 text-[#66706A]">
+                                                Your location is within our
+                                                delivery radius.
+                                            </p>
+                                        </div>
+
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#103F35] text-white">
+                                            <Check size={16} strokeWidth={3} />
+                                        </div>
                                     </div>
-                                )}
 
-                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#E8EFEC] text-[#0F5143]">
-                                <Truck size={21} />
+                                    <div className="mt-4 flex items-center justify-between rounded-2xl bg-white px-4 py-3">
+                                        <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-[#8A918D]">
+                                            Distance
+                                        </span>
+                                        <span className="text-[13px] font-extrabold text-[#103F35]">
+                                            {distanceKm ?? "—"} km
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={checkDeliveryLocation}
+                                    className="flex h-11 w-full items-center justify-center gap-2 border-t border-[#DCEBE2] bg-white text-[10px] font-bold uppercase tracking-[0.08em] text-[#103F35]"
+                                >
+                                    <MapPin size={14} />
+                                    Recheck Location
+                                </button>
                             </div>
+                        )}
 
-                            <p className="mt-4 text-[15px] font-extrabold">
-                                Delivery
-                            </p>
+                    {locationChecked &&
+                        !checkingDelivery &&
+                        orderType === "TAKEAWAY" && (
+                            <div className="mt-4 overflow-hidden rounded-[28px] border border-[#E7DDCC] bg-[#FCF7EE] shadow-[0_10px_28px_rgba(123,85,34,0.05)]">
+                                <div className="p-5">
+                                    <div className="flex items-start gap-4">
+                                        <div className="flex h-13 w-13 shrink-0 items-center justify-center rounded-2xl bg-[#F2E4CA] text-[#A56B1F]">
+                                            <ShoppingBag size={23} />
+                                        </div>
 
-                            <p className="mt-1 text-[11px] leading-5 text-[#737A76]">
-                                {checkingDelivery
-                                    ? "Checking your location..."
-                                    : deliveryEligible
-                                        ? distanceKm !== null
-                                            ? `Available • ${distanceKm} km away`
-                                            : "Delivery available"
-                                        : "Check availability"}
-                            </p>
+                                        <div className="min-w-0 flex-1">
+                                            <h3 className="text-[17px] font-extrabold text-[#795522]">
+                                                Takeaway selected
+                                            </h3>
 
-                            {!deliveryEligible && !checkingDelivery && (
-                                <span className="mt-3 inline-flex rounded-full bg-[#EAF3EE] px-3 py-1.5 text-[9px] font-bold text-[#0F5143]">
-                                    USE MY LOCATION
-                                </span>
-                            )}
+                                            <p className="mt-1.5 text-[11px] leading-5 text-[#8A7B65]">
+                                                {distanceKm !== null
+                                                    ? `You're ${distanceKm} km away from Flutes, outside the 4 km delivery radius.`
+                                                    : "Delivery could not be verified, so Takeaway is available."}
+                                            </p>
+                                        </div>
 
-                            {checkingDelivery && (
-                                <span className="mt-3 inline-flex rounded-full bg-[#EAF3EE] px-3 py-1.5 text-[9px] font-bold text-[#0F5143]">
-                                    CHECKING...
-                                </span>
-                            )}
-                        </button>
+                                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#A56B1F] text-white">
+                                            <Check size={16} strokeWidth={3} />
+                                        </div>
+                                    </div>
+                                </div>
 
-                    </div>
+                                <button
+                                    type="button"
+                                    onClick={checkDeliveryLocation}
+                                    className="flex h-11 w-full items-center justify-center gap-2 border-t border-[#E9DDC8] bg-white text-[10px] font-bold uppercase tracking-[0.08em] text-[#795522]"
+                                >
+                                    <MapPin size={14} />
+                                    Recheck Location
+                                </button>
+                            </div>
+                        )}
+
+                    {locationError && (
+                        <div className="mt-3 rounded-[20px] border border-[#E8D5C8] bg-[#FFF8F2] p-4">
+                            <div className="flex items-start gap-3">
+                                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#F5E6D5] text-[#A56B1F]">
+                                    <MapPin size={17} />
+                                </div>
+
+                                <div className="min-w-0">
+                                    <p className="text-[11px] font-extrabold text-[#795522]">
+                                        Location update
+                                    </p>
+
+                                    <p className="mt-1 text-[10px] leading-5 text-[#8A7B65]">
+                                        {locationError}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
                 </section>
 
                 {/* CUSTOMER DETAILS */}
@@ -675,34 +775,20 @@ export default function CheckoutPage() {
                     ) : (
                         <div className="rounded-[24px] border border-[#D9E4DE] bg-white p-4">
 
-                            <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-3">
-
-                                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EAF3EE] text-[#0F5143]">
-                                        <MapPin size={20} />
-                                    </div>
-
-                                    <div>
-                                        <p className="text-sm font-extrabold">
-                                            Delivery location
-                                        </p>
-
-                                        <p className="text-[11px] text-[#737A76]">
-                                            Required for 4 km validation
-                                        </p>
-                                    </div>
-
+                            <div className="flex items-center gap-3">
+                                <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#EAF3EE] text-[#0F5143]">
+                                    <MapPin size={20} />
                                 </div>
 
-                                <button
-                                    type="button"
-                                    onClick={handleGetLocation}
-                                    className="rounded-full bg-[#EAF3EE] px-3 py-2 text-[10px] font-bold text-[#0F5143]"
-                                >
-                                    {locationLoading
-                                        ? "LOCATING..."
-                                        : "USE LOCATION"}
-                                </button>
+                                <div>
+                                    <p className="text-sm font-extrabold">
+                                        Delivery location
+                                    </p>
+
+                                    <p className="text-[11px] text-[#737A76]">
+                                        Location verified within 4 km
+                                    </p>
+                                </div>
                             </div>
 
                             <div className="mt-4 space-y-3">
@@ -799,27 +885,21 @@ export default function CheckoutPage() {
 
                 </section>
 
-                {/* 4KM NOTICE */}
+                {/* DELIVERY POLICY */}
                 <section className="px-5 pt-4">
-                    <div className="rounded-[20px] border border-[#E6DDCD] bg-[#FBF6EC] p-4">
+                    <div className="flex items-center gap-3 rounded-[20px] border border-[#E3E8E4] bg-white px-4 py-3.5">
+                        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#EEF5F1] text-[#103F35]">
+                            <MapPin size={16} />
+                        </div>
 
-                        <div className="flex gap-3">
+                        <div className="min-w-0 flex-1">
+                            <p className="text-[11px] font-bold text-[#303633]">
+                                Delivery within 4 km
+                            </p>
 
-                            <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#F2E4CA] text-[#A56B1F]">
-                                <MapPin size={17} />
-                            </div>
-
-                            <div>
-                                <p className="text-[12px] font-extrabold text-[#795522]">
-                                    Delivery available within 4 km
-                                </p>
-
-                                <p className="mt-1 text-[11px] leading-5 text-[#8A7B65]">
-                                    If your location is outside the service radius,
-                                    you can place the order as Takeaway instead.
-                                </p>
-                            </div>
-
+                            <p className="mt-0.5 text-[10px] leading-4 text-[#858C88]">
+                                Outside the radius, Takeaway is selected automatically.
+                            </p>
                         </div>
                     </div>
                 </section>
@@ -985,7 +1065,9 @@ export default function CheckoutPage() {
                             <span className="rounded-full bg-[#EAF3EE] px-3 py-1.5 text-[9px] font-bold text-[#0F5143]">
                                 {orderType === "TAKEAWAY"
                                     ? "TAKEAWAY"
-                                    : "DELIVERY"}
+                                    : orderType === "DELIVERY"
+                                        ? "DELIVERY"
+                                        : "SELECT LOCATION"}
                             </span>
 
                         </div>
@@ -1069,13 +1151,13 @@ export default function CheckoutPage() {
                 )}
 
                 {/* STICKY CTA */}
-                <div className="fixed bottom-0 left-0 right-0 z-50 mx-auto w-full max-w-[480px] border-t border-black/[0.06] bg-[#F7F8F6]/95 p-4 backdrop-blur-xl">
+                <div className="fixed bottom-0 left-1/2 z-50 w-full max-w-[520px] -translate-x-1/2 border-t border-black/[0.06] bg-[#F7F8F6]/96 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] shadow-[0_-10px_30px_rgba(15,63,53,0.07)] backdrop-blur-xl lg:bottom-6 lg:rounded-b-[32px] lg:border-x lg:border-b lg:shadow-[0_12px_40px_rgba(15,63,53,0.10)]">
 
                     <button
                         type="button"
                         onClick={handlePlaceOrder}
                         disabled={placingOrder}
-                        className="flex w-full items-center justify-between rounded-[18px] bg-[#0F5143] px-5 py-3.5 text-white shadow-[0_12px_32px_rgba(15,81,67,0.24)] transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
+                        className="flex min-h-[58px] w-full items-center justify-between rounded-[19px] bg-[#0F5143] px-5 py-3.5 text-white shadow-[0_12px_32px_rgba(15,81,67,0.24)] transition active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-70"
                     >
 
                         <div className="text-left">
