@@ -15,7 +15,8 @@ model Category {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   image        String?
-  menuItems    MenuItem[]
+
+  menuItems MenuItem[]
 }
 
 model MenuItem {
@@ -32,6 +33,7 @@ model MenuItem {
   displayOrder   Int                  @default(0)
   createdAt      DateTime             @default(now())
   updatedAt      DateTime             @updatedAt
+
   category       Category             @relation(fields: [categoryId], references: [id])
   suggestionsFor MenuItemSuggestion[] @relation("MenuItemSuggestions")
   suggestedBy    MenuItemSuggestion[] @relation("SuggestedForMenuItem")
@@ -53,7 +55,10 @@ model MenuItemVariant {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   foodType     FoodType?
-  menuItem     MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  orderItems OrderItem[]
 
   @@index([menuItemId])
   @@index([foodType])
@@ -66,45 +71,85 @@ model MenuItemSuggestion {
   priority        Int      @default(0)
   isActive        Boolean  @default(true)
   createdAt       DateTime @default(now())
-  menuItem        MenuItem @relation("MenuItemSuggestions", fields: [menuItemId], references: [id], onDelete: Cascade)
-  suggestedItem   MenuItem @relation("SuggestedForMenuItem", fields: [suggestedItemId], references: [id], onDelete: Cascade)
+
+  menuItem      MenuItem @relation("MenuItemSuggestions", fields: [menuItemId], references: [id], onDelete: Cascade)
+  suggestedItem MenuItem @relation("SuggestedForMenuItem", fields: [suggestedItemId], references: [id], onDelete: Cascade)
 
   @@unique([menuItemId, suggestedItemId])
   @@index([menuItemId])
 }
 
 model Order {
-  id              String      @id @default(cuid())
-  orderType       OrderType
-  status          OrderStatus @default(PENDING)
-  subtotal        Decimal     @db.Decimal(10, 2)
-  total           Decimal     @db.Decimal(10, 2)
-  paymentId       String?
-  paymentStatus   String?
-  createdAt       DateTime    @default(now())
-  updatedAt       DateTime    @updatedAt
+  id          String      @id @default(cuid())
+  orderNumber String      @unique
+  accessToken String      @unique
+
+  orderType OrderType
+  status    OrderStatus @default(PENDING)
+
+  subtotal    Decimal @db.Decimal(10, 2)
+  cgst        Decimal @db.Decimal(10, 2)
+  sgst        Decimal @db.Decimal(10, 2)
+  tax        Decimal @db.Decimal(10, 2)
+  deliveryFee Decimal @default(0) @db.Decimal(10, 2)
+  total       Decimal @db.Decimal(10, 2)
+
+  paymentId         String?
+  razorpayOrderId   String?
+  razorpayPaymentId String?
+  paymentStatus     String?
+
+  customerName  String
+  customerPhone String
+  customerEmail String?
+
   customerAddress String?
-  customerEmail   String?
-  customerName    String
-  customerPhone   String
   landmark        String?
-  notes           String?
   pincode         String?
-  tax             Decimal     @db.Decimal(10, 2)
-  items           OrderItem[]
+
+  customerLatitude  Decimal? @db.Decimal(10, 7)
+  customerLongitude Decimal? @db.Decimal(10, 7)
+
+  notes String?
+
+  handoverCode   String?
+  handoverStatus HandoverStatus @default(PENDING)
+  handoverAt     DateTime?
+
+  deliveryPartnerId String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  items OrderItem[]
 
   @@index([status])
   @@index([createdAt])
+  @@index([orderType])
+  @@index([paymentStatus])
+  @@index([deliveryPartnerId])
 }
 
 model OrderItem {
-  id         String   @id @default(cuid())
+  id String @id @default(cuid())
+
   orderId    String
   menuItemId String
-  quantity   Int
-  price      Decimal  @db.Decimal(10, 2)
-  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
-  order      Order    @relation(fields: [orderId], references: [id])
+  variantId  String?
+
+  itemName    String
+  variantName String?
+
+  quantity Int
+  price    Decimal @db.Decimal(10, 2)
+
+  order    Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  menuItem MenuItem       @relation(fields: [menuItemId], references: [id])
+  variant  MenuItemVariant? @relation(fields: [variantId], references: [id])
+
+  @@index([orderId])
+  @@index([menuItemId])
+  @@index([variantId])
 }
 
 model Admin {
@@ -122,19 +167,35 @@ model RestaurantSetting {
   phone          String
   email          String?
   address        String
-  deliveryRadius Int      @default(3)
-  isOpen         Boolean  @default(true)
-  openingTime    String
-  closingTime    String
-  logo           String?
-  banner         String?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+
+  latitude  Decimal? @db.Decimal(10, 7)
+  longitude Decimal? @db.Decimal(10, 7)
+
+  deliveryRadius Int @default(4)
+
+  isOpen      Boolean @default(true)
+  openingTime String
+  closingTime String
+
+  logo   String?
+  banner String?
+
+  gstEnabled Boolean @default(true)
+
+  cgstRate Decimal @default(2.5) @db.Decimal(5, 2)
+  sgstRate Decimal @default(2.5) @db.Decimal(5, 2)
+
+  gstin     String?
+  vatNumber String?
+
   facebookUrl    String?
   googleMapsUrl  String?
   instagramUrl   String?
-  upiId          String?
-  whatsAppNumber String?
+  upiId           String?
+  whatsAppNumber  String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Banner {
@@ -160,6 +221,13 @@ enum OrderStatus {
   ACCEPTED
   PREPARING
   READY
+  OUT_FOR_DELIVERY
+  PICKED_UP
   DELIVERED
   CANCELLED
+}
+
+enum HandoverStatus {
+  PENDING
+  VERIFIED
 }
