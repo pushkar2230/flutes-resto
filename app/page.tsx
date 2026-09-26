@@ -21,14 +21,8 @@ export default function HomePage() {
   return (
     <main className="min-h-screen w-full bg-[#EDEFEA] text-[#171A19]">
       {/* Mobile-first restaurant app shell */}
-      <div
-        className="
-          relative mx-auto min-h-screen w-full overflow-x-hidden
-          bg-[#F7F8F6]
-          shadow-[0_0_60px_rgba(0,0,0,0.06)]
-          md:max-w-[480px]
-        "
-      >
+      <div className="relative mx-auto min-h-screen w-full overflow-x-hidden bg-[#F7F8F6] shadow-[0_0_60px_rgba(0,0,0,0.06)] md:max-w-[480px]">
+
         {/* Header */}
         <Header />
 
@@ -62,20 +56,22 @@ export default function HomePage() {
             <BestSellerSection foodType={foodType} />
           </section>
 
+          <div className="h-5" />
+
           {/* Menu Preview */}
           <section className="pt-7">
             <MenuPreview />
           </section>
 
+          <div className="h-10" />
+
           {/* Footer */}
-          <section className="pt-8">
+          <section className="pt-16">
             <Footer />
           </section>
-
-          {/* Space for fixed bottom UI */}
-          <div className="h-40" />
         </div>
 
+        <div className="h-15" />
         {/* Floating cart */}
         <FloatingCart />
 

@@ -16,7 +16,7 @@ export default function Header() {
           fill
           priority
           sizes="(max-width: 480px) 100vw, 480px"
-          className="object-cover object-center"
+          className="object-cover object-center dark:brightness-90"
         />
 
         {/* Dark luxury overlay */}
