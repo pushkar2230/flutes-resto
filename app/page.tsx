@@ -73,7 +73,7 @@ export default function HomePage() {
           </section>
 
           {/* Space for fixed bottom UI */}
-          <div className="h-36" />
+          <div className="h-40" />
         </div>
 
         {/* Floating cart */}

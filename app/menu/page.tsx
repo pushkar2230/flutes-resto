@@ -24,6 +24,7 @@ import {
   addToCart,
   getCart,
 } from "@/lib/cart";
+import FloatingCart from "@/components/home/FloatingCart";
 
 /* =========================================================
    TYPES
@@ -344,14 +345,17 @@ function MenuPageContent() {
   const categoryFromUrl =
     searchParams.get("category");
 
+  const categoriesFromUrl =
+    searchParams.get("categories") ?? "";
+
   const searchFromUrl =
     searchParams.get("search") ?? "";
 
   const [categories, setCategories] =
     useState<Category[]>([]);
 
-  const [activeCategory, setActiveCategory] =
-    useState("");
+  const [activeCategoryIds, setActiveCategoryIds] =
+    useState<string[]>([]);
 
   const [search, setSearch] =
     useState(searchFromUrl);
@@ -422,29 +426,55 @@ function MenuPageContent() {
   ======================================================= */
 
   useEffect(() => {
-    if (!categories.length) {
-      return;
-    }
+    if (!categories.length) return;
 
+    const normalizeCategory = (value: string) =>
+      value
+        .trim()
+        .toLowerCase()
+        .replace(/[-_]+/g, " ")
+        .replace(/\s+/g, " ");
+
+    // Keep existing category-id URLs working.
     if (
       categoryFromUrl &&
       categories.some(
-        (category) =>
-          category.id === categoryFromUrl
+        (category) => category.id === categoryFromUrl
       )
     ) {
-      setActiveCategory(
-        categoryFromUrl
-      );
-    } else if (!activeCategory) {
-      setActiveCategory(
-        categories[0].id
-      );
+      setActiveCategoryIds([categoryFromUrl]);
+      return;
     }
+
+    // Home CategorySlider sends category names.
+    const requestedNames = categoriesFromUrl
+      .split(",")
+      .map(normalizeCategory)
+      .filter(Boolean);
+
+    if (requestedNames.length > 0) {
+      const matchedIds = categories
+        .filter((category) =>
+          requestedNames.includes(
+            normalizeCategory(category.name)
+          )
+        )
+        .map((category) => category.id);
+
+      if (matchedIds.length > 0) {
+        setActiveCategoryIds(matchedIds);
+        return;
+      }
+    }
+
+    // Default /menu → first category.
+    setActiveCategoryIds((current) =>
+      current.length > 0 ? current : [categories[0].id]
+    );
   }, [
     categories,
     categoryFromUrl,
-    activeCategory,
+    categoriesFromUrl,
   ]);
 
   /* =======================================================
@@ -475,24 +505,13 @@ function MenuPageContent() {
           );
 
           if (
-            loadedCategories.length > 0
+            loadedCategories.length > 0 &&
+            !categoryFromUrl &&
+            !categoriesFromUrl
           ) {
-            const categoryExists =
-              loadedCategories.some(
-                (category) =>
-                  category.id ===
-                  categoryFromUrl
-              );
-
-            if (categoryExists) {
-              setActiveCategory(
-                categoryFromUrl!
-              );
-            } else {
-              setActiveCategory(
-                loadedCategories[0].id
-              );
-            }
+            setActiveCategoryIds([
+              loadedCategories[0].id,
+            ]);
           }
         }
       } catch (error) {
@@ -543,19 +562,20 @@ function MenuPageContent() {
      ACTIVE CATEGORY
   ======================================================= */
 
+  const activeCategories =
+    filteredCategories.filter((category) =>
+      activeCategoryIds.includes(category.id)
+    );
+
   const activeItems =
-    filteredCategories.find(
-      (category) =>
-        category.id ===
-        activeCategory
-    )?.items ?? [];
+    activeCategories.flatMap(
+      (category) => category.items
+    );
 
   const activeCategoryName =
-    categories.find(
-      (category) =>
-        category.id ===
-        activeCategory
-    )?.name ?? "";
+    activeCategories
+      .map((category) => formatCategoryName(category.name))
+      .join(" + ");
 
   /* =======================================================
      ADD ITEM
@@ -894,14 +914,15 @@ function MenuPageContent() {
     "
               >
                 {categories.map((category) => {
-                  const isActive = category.id === activeCategory;
+                  const isActive =
+                    activeCategoryIds.includes(category.id);
 
                   return (
                     <button
                       key={category.id}
                       type="button"
                       onClick={() => {
-                        setActiveCategory(category.id);
+                        setActiveCategoryIds([category.id]);
                         setSearch("");
                       }}
                       className={`
@@ -1243,54 +1264,7 @@ function MenuPageContent() {
 
       </div>
 
-      {cartCount > 0 && (
-        <Link
-          href="/cart"
-          aria-label="View cart"
-          className="
-            fixed
-            bottom-5
-            left-1/2
-            z-[90]
-            flex
-            h-[58px]
-            w-[calc(100%-32px)]
-            max-w-[448px]
-            -translate-x-1/2
-            items-center
-            justify-between
-            rounded-full
-            bg-[#103F35]
-            pl-5
-            pr-2
-            text-white
-            shadow-[0_14px_40px_rgba(16,63,53,0.28)]
-            ring-1
-            ring-white/10
-            transition-all
-            duration-200
-            active:scale-[0.98]
-          "
-        >
-          <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10">
-              <ShoppingCart size={19} strokeWidth={2} color="white" />
-            </div>
-            <div className="text-left">
-              <p className="text-[13px] font-semibold leading-none text-white">
-                View Cart
-              </p>
-              <p className="mt-1 text-[10px] text-white/60">
-                {cartCount} {cartCount === 1 ? "item" : "items"}
-              </p>
-            </div>
-          </div>
-          <div className="flex h-10 items-center gap-1 rounded-full bg-white px-4 text-[12px] font-bold text-[#103F35]">
-            View Cart
-            <ChevronRight size={15} />
-          </div>
-        </Link>
-      )}
+      <FloatingCart />
 
       {/* =====================================================
           VARIANT SHEET
